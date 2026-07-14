@@ -436,3 +436,18 @@ na Central de Cobranças; envio por WhatsApp preservado.
   dados no Supabase** (cobranças/boletos já existentes continuam visíveis).
 - **Pendências:** revogar o token PagBank exposto (não precisa gerar novo). CSS órfão
   `.modo-cobranca-card` a limpar na fase de CSS. `BE-06` (endereço fixo do boleto) tornou-se obsoleto.
+
+### FASE 4 — Limpeza ✅ (2026-07-13) — commit `6958cc2`
+| Item | Status | Ação |
+|------|--------|------|
+| FE-02 | ✅ | `gerarRelatorioWhatsapp` (usava `supabase`/`PDFDocument`/`fs`/`__dirname` no browser — backend copiado por engano, quebrado, nunca chamado) removido |
+| BE-02 | ✅ | Definições duplicadas de `statusMensalidadeServidor` e `verificarAtrasoServidor` no `server.js` — mantida 1 cópia de cada |
+| PERF-04 | ✅ | `logo.png` 1,8 MB → **32 KB** (320×320); `instituto.png` 1,9 MB → **`instituto.webp` 74 KB**; CSS atualizado. **~3,6 MB** a menos no login |
+| REL-03 | ✅ | PDFs de teste removidos de `frontend/assets` (já estavam fora do repo pelo `.gitignore`) |
+| CLEAN-05 | ✅ | `MELHORIAS_V2.txt` (notas obsoletas) removido |
+| BE-03 | ⏸️ | Robô WhatsApp desativado (`processador=null`) — **não removido**: histórico diz "temporário", decidir remover/reativar |
+| CSS órfão | ⬜ | `.modo-cobranca-card` (6 blocos) → limpar na reestruturação de CSS (Fase 8) |
+| CLEAN-07 | ⬜ | `sqlite3` → remover na Fase 6 (Banco) |
+
+**Validado:** `node --check` + smoke test HTTP (boot OK, `/api` 401, públicas 200). Originais das
+imagens preservados (git history + backup no scratchpad).
