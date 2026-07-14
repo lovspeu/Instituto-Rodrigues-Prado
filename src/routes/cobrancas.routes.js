@@ -111,7 +111,7 @@ const { error } = await supabase
 
 if (error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('cobrancas');
 
     res.json({
       sucesso:true,
@@ -200,7 +200,7 @@ router.post('/api/cobrancas', async (req, res) => {
 
     if (error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('cobrancas');
     res.json({ sucesso: true });
 
   } catch (error) {
@@ -257,7 +257,7 @@ router.post('/api/admin/migrar-boletos', requireAdmin, async (req, res) => {
       }
     }
 
-    atualizarSistema();
+    atualizarSistema('cobrancas');
 
     const migrados = resultados.filter(r => r.status === 'migrado').length;
     const erros = resultados.filter(r => r.status === 'erro').length;
@@ -280,7 +280,7 @@ router.delete('/api/cobrancas/:id', async (req, res) => {
 
     if (error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('cobrancas');
     res.json({ sucesso: true });
 
   } catch (error) {
@@ -297,7 +297,7 @@ router.patch('/api/cobrancas/reset-whatsapp', requireAdmin, async (req, res) => 
       ? await query.eq('referencia', referencia)
       : await query.neq('id', 0);
     if (error) throw error;
-    atualizarSistema();
+    atualizarSistema('cobrancas');
     res.json({ sucesso: true });
   } catch (error) {
     console.error('Erro ao resetar envios:', error);
@@ -314,7 +314,7 @@ router.patch('/api/cobrancas/:id/whatsapp', async (req, res) => {
 
     if (error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('cobrancas');
     res.json({ sucesso: true });
 
   } catch (error) {

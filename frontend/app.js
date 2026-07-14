@@ -8,6 +8,96 @@ HELPERS
 // Socket conecta apenas apos autenticacao (o servidor rejeita sockets sem sessao)
 let socket = null;
 
+/* =========================================================
+   DESEMPENHO — render seletivo e debounce
+========================================================= */
+
+// Qual secao esta aberta agora
+function obterSecaoAtiva(){
+  const secao = document.querySelector('.section.active-section');
+  return secao ? secao.id : 'dashboard';
+}
+
+// Renderiza APENAS a tela pedida (evita reconstruir as 6 telas a cada mudanca)
+function renderizarSecao(id){
+  switch(id){
+    case 'dashboard':        atualizarDashboard();         break;
+    case 'clientes':         renderizarClientes();         break;
+    case 'alunos':           renderizarAlunos();           break;
+    case 'financeiro':       renderizarFinanceiro();       break;
+    case 'mensalidades':     renderizarMensalidades();     break;
+    case 'centralCobrancas': renderizarCentralCobrancas(); break;
+    default: break; // relatorios nao tem lista para renderizar
+  }
+}
+
+function renderizarSecaoAtiva(){
+  renderizarSecao(obterSecaoAtiva());
+}
+
+// Adia a execucao enquanto o usuario ainda digita
+function debounce(fn, espera = 250){
+  let timer = null;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), espera);
+  };
+}
+
+// Recarrega SOMENTE o recurso que mudou (o servidor informa qual foi),
+// em vez de baixar as 9 tabelas a cada alteracao de qualquer usuario.
+const recarregadoresPorRecurso = {
+
+  clientes: async () => {
+    clientes = await apiGet('/api/clientes');
+  },
+
+  // Excluir um aluno tambem apaga seus pagamentos e boletos (cascata) —
+  // por isso esses tres andam juntos.
+  alunos: async () => {
+    const [a, p, b] = await Promise.all([
+      apiGet('/api/alunos'),
+      apiGet('/api/pagamentosMensais'),
+      apiGet('/api/boletosMensais')
+    ]);
+    alunos = a;
+    pagamentosMensais = p;
+    boletosMensais = b;
+  },
+
+  financeiro: async () => {
+    financeiro = await apiGet('/api/financeiro');
+  },
+
+  pagamentos: async () => {
+    pagamentosMensais = await apiGet('/api/pagamentosMensais');
+  },
+
+  mensalidadesResolvidas: async () => {
+    mensalidadesResolvidas = await apiGet('/api/mensalidadesResolvidas');
+  },
+
+  boletosMensais: async () => {
+    boletosMensais = await apiGet('/api/boletosMensais');
+  },
+
+  // O modo censura vive em /api/modo-censura, mas e salvo em configuracoes
+  configuracoes: async () => {
+    const [cfg, censura] = await Promise.all([
+      apiGet('/api/configuracoes').catch(() => ({})),
+      apiGet('/api/modo-censura').catch(() => ({ ativo: false }))
+    ]);
+    configuracoes = cfg || {};
+    modoCensura = !!(censura && censura.ativo);
+    atualizarBotaoCensura();
+  },
+
+  cobrancas: async () => {
+    cobrancas = await apiGet('/api/cobrancas').catch(() => []);
+  }
+
+};
+
 function conectarSocket(){
   if(socket) return;
 
@@ -17,19 +107,25 @@ function conectarSocket(){
     console.warn('Tempo real indisponível:', err.message);
   });
 
-  socket.on('atualizarSistema', async () => {
-    await carregarDados();
+  // Recarrega apenas o recurso alterado e re-renderiza SOMENTE a tela aberta
+  socket.on('atualizarSistema', async (payload) => {
+    try{
 
-    renderizarClientes();
-    atualizarSelectResponsaveis();
-    renderizarAlunos();
-    renderizarFinanceiro();
-    renderizarMensalidades();
+      const recurso = payload && payload.recurso;
 
-    atualizarBotaoModoCobranca();
-    renderizarCentralCobrancas();
+      if(recurso && recarregadoresPorRecurso[recurso]){
+        await recarregadoresPorRecurso[recurso]();
+      }else{
+        // Recurso desconhecido/ausente: recarrega tudo (comportamento antigo)
+        await carregarDados();
+      }
 
-    atualizarDashboard();
+      atualizarSelectResponsaveis();
+      renderizarSecaoAtiva();
+
+    }catch(error){
+      console.error('Erro ao atualizar em tempo real:', error);
+    }
   });
 }
 
@@ -288,6 +384,9 @@ menuItems.forEach(item => {
     if(section){
       section.classList.add('active-section');
     }
+
+    // Renderiza a tela ao abri-la (em vez de manter as 6 sempre renderizadas)
+    renderizarSecao(sectionId);
 
   });
 
@@ -653,49 +752,42 @@ let configuracoes = {};
 let cobrancas = [];
 let modoCobranca = 'manual';
 
+// Carrega tudo em PARALELO (antes eram 9 requisicoes em sequencia, uma esperando a outra).
+// As 3 ultimas sao opcionais: se falharem, caem para um valor padrao (como antes).
 async function carregarDados(){
 
-  clientes =
-  await apiGet('/api/clientes');
+  const [
+    respClientes,
+    respAlunos,
+    respFinanceiro,
+    respPagamentos,
+    respResolvidas,
+    respBoletos,
+    respConfiguracoes,
+    respCobrancas,
+    respCensura
+  ] = await Promise.all([
+    apiGet('/api/clientes'),
+    apiGet('/api/alunos'),
+    apiGet('/api/financeiro'),
+    apiGet('/api/pagamentosMensais'),
+    apiGet('/api/mensalidadesResolvidas'),
+    apiGet('/api/boletosMensais'),
+    apiGet('/api/configuracoes').catch(() => ({})),
+    apiGet('/api/cobrancas').catch(() => []),
+    apiGet('/api/modo-censura').catch(() => ({ ativo: false }))
+  ]);
 
-  alunos =
-  await apiGet('/api/alunos');
+  clientes              = respClientes;
+  alunos                = respAlunos;
+  financeiro            = respFinanceiro;
+  pagamentosMensais     = respPagamentos;
+  mensalidadesResolvidas = respResolvidas;
+  boletosMensais        = respBoletos;
 
-  financeiro =
-  await apiGet('/api/financeiro');
-
-  pagamentosMensais =
-  await apiGet('/api/pagamentosMensais');
-
-  mensalidadesResolvidas =
-  await apiGet('/api/mensalidadesResolvidas');
-
-  boletosMensais =
-  await apiGet('/api/boletosMensais');
-
-  try{
-    configuracoes =
-    await apiGet('/api/configuracoes');
-  }catch{
-    configuracoes = {};
-  }
-
-  try{
-    cobrancas =
-    await apiGet('/api/cobrancas');
-  }catch{
-    cobrancas = [];
-  }
-
-  try{
-    const respostaModo =
-    await apiGet('/api/modo-censura');
-
-    modoCensura =
-    respostaModo.ativo;
-  }catch{
-    modoCensura = false;
-  }
+  configuracoes = respConfiguracoes || {};
+  cobrancas     = respCobrancas || [];
+  modoCensura   = !!(respCensura && respCensura.ativo);
 
   modoCobranca = 'manual';
 
@@ -713,9 +805,21 @@ document.getElementById('buscarResponsavel');
 
 if(buscarResponsavel){
 
-  buscarResponsavel.addEventListener('input', () => {
+  // Debounce: espera o usuario parar de digitar antes de re-renderizar a lista
+  buscarResponsavel.addEventListener('input', debounce(() => {
     renderizarClientes();
-  });
+  }, 250));
+
+}
+
+// Busca de alunos (antes era oninput inline, re-renderizando a cada tecla)
+const pesquisaAlunoInput = document.getElementById('pesquisaAluno');
+
+if(pesquisaAlunoInput){
+
+  pesquisaAlunoInput.addEventListener('input', debounce(() => {
+    renderizarAlunos();
+  }, 250));
 
 }
 
@@ -1302,9 +1406,10 @@ if(formFinanceiro){
 
 if(buscarFinanceiro){
 
-  buscarFinanceiro.addEventListener('input', () => {
+  // Debounce: espera o usuario parar de digitar antes de re-renderizar a lista
+  buscarFinanceiro.addEventListener('input', debounce(() => {
     renderizarFinanceiro();
-  });
+  }, 250));
 
 }
 
@@ -3146,18 +3251,15 @@ async function iniciarSistema(){
     const centralMesEl = document.getElementById('centralFiltroMes');
     if(centralMesEl && !centralMesEl.value) centralMesEl.value = refAtual;
 
-    renderizarClientes();
-    renderizarAlunos();
-    renderizarFinanceiro();
-    renderizarMensalidades();
     atualizarSelectResponsaveis();
-    atualizarDashboard();
-    renderizarCentralCobrancas();
+    atualizarBotaoModoCobranca();
+    atualizarBotaoCensura();
 
     conectarSocket();
     restaurarUltimaAba();
-    atualizarBotaoModoCobranca();
-    atualizarBotaoCensura();
+
+    // Renderiza SOMENTE a aba aberta; as demais renderizam ao serem abertas
+    renderizarSecaoAtiva();
 
   }catch(error){
 

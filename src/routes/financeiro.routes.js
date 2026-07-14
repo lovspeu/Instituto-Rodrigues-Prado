@@ -50,7 +50,7 @@ router.post('/api/financeiro', async (req, res) => {
 
     if (error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('financeiro');
     res.json({ sucesso: true });
 
   } catch (error) {
@@ -70,7 +70,7 @@ router.patch('/api/financeiro/:id/status', async (req, res) => {
 
     if (error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('financeiro');
     res.json({ sucesso: true });
 
   } catch (error) {
@@ -88,7 +88,7 @@ router.delete('/api/financeiro/:id', async (req, res) => {
 
     if (error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('financeiro');
     res.json({ sucesso: true });
 
   } catch (error) {

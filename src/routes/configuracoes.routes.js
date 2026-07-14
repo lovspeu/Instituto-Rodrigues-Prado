@@ -35,7 +35,7 @@ router.patch('/api/configuracoes', async (req, res) => {
 
     if (error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('configuracoes');
     res.json({ sucesso: true });
 
   } catch (error) {
@@ -87,7 +87,7 @@ router.patch('/api/modo-censura', async (req, res) => {
 
     if(error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('configuracoes');
 
     res.json({
       sucesso:true

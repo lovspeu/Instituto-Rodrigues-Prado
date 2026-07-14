@@ -40,7 +40,7 @@ router.post('/api/pagamentosMensais', async (req, res) => {
 
     if (error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('pagamentos');
     res.json({ sucesso: true });
 
   } catch (error) {
@@ -61,7 +61,7 @@ router.delete('/api/pagamentosMensais', async (req, res) => {
 
     if (error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('pagamentos');
     res.json({ sucesso: true });
 
   } catch (error) {

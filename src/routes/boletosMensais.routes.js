@@ -59,7 +59,7 @@ router.post('/api/boletosMensais', async (req, res) => {
 
     if (error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('boletosMensais');
     res.json({ sucesso: true });
 
   } catch (error) {
@@ -80,7 +80,7 @@ router.delete('/api/boletosMensais', async (req, res) => {
 
     if (error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('boletosMensais');
     res.json({ sucesso: true });
 
   } catch (error) {

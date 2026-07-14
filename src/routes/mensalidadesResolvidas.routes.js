@@ -49,7 +49,7 @@ router.post('/api/mensalidadesResolvidas', async (req, res) => {
 
     if (error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('mensalidadesResolvidas');
     res.json({ sucesso: true });
 
   } catch (error) {
@@ -70,7 +70,7 @@ router.delete('/api/mensalidadesResolvidas', async (req, res) => {
 
     if (error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('mensalidadesResolvidas');
     res.json({ sucesso: true });
 
   } catch (error) {

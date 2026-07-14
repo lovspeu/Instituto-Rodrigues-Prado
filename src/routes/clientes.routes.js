@@ -29,7 +29,7 @@ router.post('/api/clientes', async (req, res) => {
 
     if (error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('clientes');
     res.json({ sucesso: true });
 
   } catch (error) {
@@ -49,7 +49,7 @@ router.patch('/api/clientes/:id', async (req, res) => {
 
     if (error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('clientes');
     res.json({ sucesso: true });
 
   } catch (error) {
@@ -68,7 +68,7 @@ router.delete('/api/clientes/:id', async (req, res) => {
 
     if (error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('clientes');
 
     res.json({
       sucesso: true

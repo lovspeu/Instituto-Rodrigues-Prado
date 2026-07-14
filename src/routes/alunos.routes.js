@@ -52,7 +52,7 @@ router.post('/api/alunos', async (req, res) => {
 
     if (error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('alunos');
     res.json({ sucesso: true });
 
   } catch (error) {
@@ -80,7 +80,7 @@ router.delete('/api/alunos/:id', async (req, res) => {
 
     if (error) throw error;
 
-    atualizarSistema();
+    atualizarSistema('alunos');
     res.json({ sucesso: true });
 
   } catch (error) {

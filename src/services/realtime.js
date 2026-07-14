@@ -11,10 +11,12 @@ function getIO() {
   return io;
 }
 
-// Evento generico de atualizacao (sera substituido por eventos por dominio na Fase 7)
-function atualizarSistema() {
+// Avisa os clientes que um recurso mudou. O frontend recarrega SOMENTE esse recurso
+// (se `recurso` vier vazio, o cliente faz o recarregamento completo, como antes).
+// Ex.: atualizarSistema('clientes') | atualizarSistema('financeiro')
+function atualizarSistema(recurso = null) {
   if (io) {
-    io.emit('atualizarSistema', { timestamp: Date.now() });
+    io.emit('atualizarSistema', { recurso, timestamp: Date.now() });
   }
 }
 
