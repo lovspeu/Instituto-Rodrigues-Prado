@@ -26,39 +26,12 @@ const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-/* ---- Configuracao de seguranca a partir do ambiente ---- */
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  console.warn('[SEGURANCA] JWT_SECRET nao definido no .env — defina um valor forte antes de ir para producao.');
-}
-const JWT_SECRET_EFETIVO = JWT_SECRET || 'dev-secret-inseguro-trocar';
-const COOKIE_SESSAO = 'irp_sessao';
-const SESSAO_MAX_IDADE_MS = 1000 * 60 * 60 * 8; // 8 horas
-const EM_PRODUCAO = process.env.NODE_ENV === 'production';
-
-// Origens autorizadas (CORS + Socket.IO). Same-origin sempre e permitido.
-const ORIGENS_PERMITIDAS = (process.env.ALLOWED_ORIGINS || '')
-  .split(',')
-  .map(o => o.trim())
-  .filter(Boolean);
-
-// Usuarios com privilegio administrativo (acoes destrutivas / config critica).
-const USUARIOS_ADMIN = (process.env.ADMIN_USERS || 'rosangela,adriana,joao')
-  .split(',')
-  .map(u => u.trim().toLowerCase())
-  .filter(Boolean);
-
-function origemPermitida(origin) {
-  // Sem Origin = requisicao same-origin (navegacao normal / servidor) -> permitido.
-  if (!origin) return true;
-  // Se ALLOWED_ORIGINS nao foi configurado, nao restringe (evita quebrar deploy).
-  // Configure ALLOWED_ORIGINS em producao para travar as origens.
-  if (ORIGENS_PERMITIDAS.length === 0) return true;
-  return ORIGENS_PERMITIDAS.includes(origin);
-}
-if (ORIGENS_PERMITIDAS.length === 0) {
-  console.warn('[SEGURANCA] ALLOWED_ORIGINS nao definido — CORS/Socket.IO aceitam qualquer origem. Configure em producao.');
-}
+/* ---- Configuracao de ambiente (src/config/env.js) ---- */
+const {
+  COOKIE_SESSAO,
+  JWT_SECRET_EFETIVO,
+  origemPermitida
+} = require('./src/config/env');
 
 const app = express();
 app.set('trust proxy', 1); // Render/proxy — necessario para Secure cookies e rate-limit por IP
@@ -98,75 +71,17 @@ app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 app.use(cookieParser());
 
 /* =========================================================
-   AUTENTICACAO — JWT em cookie HttpOnly
+   AUTENTICACAO — src/middlewares/auth.js
 ========================================================= */
-
-function gerarTokenSessao(usuario) {
-  return jwt.sign(
-    { usuario: usuario.usuario, nome: usuario.nome },
-    JWT_SECRET_EFETIVO,
-    { expiresIn: '8h' }
-  );
-}
-
-function definirCookieSessao(res, token) {
-  res.cookie(COOKIE_SESSAO, token, {
-    httpOnly: true,
-    secure: EM_PRODUCAO,
-    sameSite: 'lax',
-    maxAge: SESSAO_MAX_IDADE_MS
-  });
-}
-
-function limparCookieSessao(res) {
-  res.clearCookie(COOKIE_SESSAO, {
-    httpOnly: true,
-    secure: EM_PRODUCAO,
-    sameSite: 'lax'
-  });
-}
-
-function lerSessao(req) {
-  const token = req.cookies?.[COOKIE_SESSAO];
-  if (!token) return null;
-  try {
-    return jwt.verify(token, JWT_SECRET_EFETIVO);
-  } catch {
-    return null;
-  }
-}
-
-// Bloqueia rotas privadas
-function requireAuth(req, res, next) {
-  const sessao = lerSessao(req);
-  if (!sessao) {
-    return res.status(401).json({ erro: 'Nao autenticado.' });
-  }
-  req.usuario = sessao;
-  next();
-}
-
-// Exige privilegio administrativo
-function requireAdmin(req, res, next) {
-  const sessao = req.usuario || lerSessao(req);
-  if (!sessao) {
-    return res.status(401).json({ erro: 'Nao autenticado.' });
-  }
-  if (!USUARIOS_ADMIN.includes(String(sessao.usuario).toLowerCase())) {
-    return res.status(403).json({ erro: 'Acesso restrito a administradores.' });
-  }
-  req.usuario = sessao;
-  next();
-}
-
-// Limite de tentativas para login (anti brute-force)
-const limiteLogin = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 20,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { erro: 'Muitas tentativas. Tente novamente em alguns minutos.' }
-});
+const {
+  gerarTokenSessao,
+  definirCookieSessao,
+  limparCookieSessao,
+  lerSessao,
+  requireAuth,
+  requireAdmin,
+  limiteLogin
+} = require('./src/middlewares/auth');
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -200,14 +115,8 @@ if(!fs.existsSync('./uploads/boletos')){
 }
 
 /* BANCO */
-const db = new sqlite3.Database('./database.db');
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
-);
-
-console.log('SUPABASE URL EXISTE:', !!process.env.SUPABASE_URL);
-console.log('SUPABASE KEY EXISTE:', !!process.env.SUPABASE_KEY);
+const db = new sqlite3.Database('./database.db'); // legado SQLite (a remover na Fase 6)
+const supabase = require('./src/config/supabase');
 
 db.serialize(() => {
 
@@ -502,59 +411,18 @@ app.delete('/api/mensalidadesResolvidas', async (req, res) => {
 LEITURA DE BOLETO MANUAL
 ========================================================= */
 
-function limparNumero(valor){
-  return String(valor || '').replace(/\D/g, '');
-}
-
-function normalizarTexto(texto){
-  return String(texto || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim();
-}
-
-function detectarCPF(texto){
-  const match =
-    String(texto || '').match(/\d{3}\.?\d{3}\.?\d{3}-?\d{2}/);
-
-  return match ? limparNumero(match[0]) : null;
-}
-
-function detectarLinhaDigitavel(texto){
-  const match =
-    String(texto || '').match(
-      /(\d{5}\.?\d{5}\s?\d{5}\.?\d{6}\s?\d{5}\.?\d{6}\s?\d\s?\d{14})/
-    );
-
-  return match ? match[0] : null;
-}
-
-function detectarValor(texto){
-  const valores =
-    String(texto || '').match(/R\$\s?\d{1,3}(\.\d{3})*,\d{2}/g);
-
-  if(!valores || valores.length === 0){
-    return null;
-  }
-
-  const ultimo = valores[valores.length - 1];
-
-  return Number(
-    ultimo
-      .replace('R$', '')
-      .replace(/\./g, '')
-      .replace(',', '.')
-      .trim()
-  );
-}
-
-function detectarVencimento(texto){
-  const match =
-    String(texto || '').match(/\d{2}\/\d{2}\/\d{4}/);
-
-  return match ? match[0] : null;
-}
+/* Utilitarios de formatacao e deteccao \u2014 src/utils/format.js */
+const {
+  limparNumero,
+  normalizarTexto,
+  detectarCPF,
+  detectarLinhaDigitavel,
+  detectarValor,
+  detectarVencimento,
+  formatarMoeda,
+  obterMesAtualReferencia,
+  normalizarTelefoneWhatsApp
+} = require('./src/utils/format');
 
 async function encontrarResponsavelPorBoleto({ cpf, texto, valor }){
 
@@ -1892,61 +1760,11 @@ function emitirWhatsapp() {
   io.emit('whatsapp-info', whatsappInfo);
 }
 
-function obterMesAtualReferencia(){
-  const hoje = new Date();
-  const ano = hoje.getFullYear();
-  const mes = String(hoje.getMonth() + 1).padStart(2, '0');
-
-  return `${ano}-${mes}`;
-}
-
-function formatarMoeda(valor){
-  return Number(valor || 0).toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  });
-}
-
-function normalizarTelefoneWhatsApp(telefone) {
-  let numero = String(telefone || '').replace(/\D/g, '');
-
-  if (!numero.startsWith('55')) {
-    numero = `55${numero}`;
-  }
-
-  return `${numero}@s.whatsapp.net`;
-}
-
-function statusMensalidadeServidor(alunoId, referencia, pagamentos, resolvidas){
-  const resolvida = resolvidas.some(r =>
-    Number(r.alunoid) === Number(alunoId) &&
-    r.referencia === referencia
-  );
-
-  if(resolvida) return 'resolvido';
-
-  const pago = pagamentos.some(p =>
-    Number(p.alunoid) === Number(alunoId) &&
-    p.referencia === referencia
-  );
-
-  return pago ? 'pago' : 'pendente';
-}
-
-function verificarAtrasoServidor(aluno, referencia){
-  const [ano, mes] = referencia.split('-').map(Number);
-
-  const vencimento = new Date(
-    ano,
-    mes - 1,
-    Number(aluno.vencimento || 30),
-    23,
-    59,
-    59
-  );
-
-  return new Date() > vencimento;
-}
+/* Regras de status/atraso de mensalidades — src/utils/mensalidades.js */
+const {
+  statusMensalidadeServidor,
+  verificarAtrasoServidor
+} = require('./src/utils/mensalidades');
 
 function desenharCabecalhoPdf(doc, titulo){
   doc.rect(0, 0, 842, 90).fill('#030c22');
