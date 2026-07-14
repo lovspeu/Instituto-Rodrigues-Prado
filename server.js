@@ -3,7 +3,6 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const sqlite3 = require('sqlite3').verbose();
 const http = require('http');
 const { Server } = require('socket.io');
 
@@ -94,154 +93,9 @@ if(!fs.existsSync('./uploads/boletos')){
   fs.mkdirSync('./uploads/boletos', { recursive:true });
 }
 
-/* BANCO */
-const db = new sqlite3.Database('./database.db'); // legado SQLite (a remover na Fase 6)
-const supabase = require('./src/config/supabase');
-
-db.serialize(() => {
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS clientes (
-      id INTEGER PRIMARY KEY,
-      nome TEXT,
-      telefone TEXT,
-      cpf TEXT,
-      email TEXT
-    )
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS alunos (
-      id INTEGER PRIMARY KEY,
-      nome TEXT,
-      responsavel TEXT,
-      mensalidade REAL,
-      vencimento INTEGER,
-      mesMatricula INTEGER,
-      anoMatricula INTEGER
-    )
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS financeiro (
-      id INTEGER PRIMARY KEY,
-      descricao TEXT,
-      valor REAL,
-      tipo TEXT,
-      status TEXT,
-      categoria TEXT,
-      data TEXT,
-      mes INTEGER,
-      ano INTEGER
-    )
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS pagamentosMensais (
-      id INTEGER PRIMARY KEY,
-      alunoId INTEGER,
-      referencia TEXT,
-      dataPagamento TEXT
-    )
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS mensalidadesResolvidas (
-      id INTEGER PRIMARY KEY,
-      alunoId INTEGER,
-      referencia TEXT,
-      status TEXT,
-      motivo TEXT,
-      dataResolucao TEXT
-    )
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS boletosMensais (
-      id INTEGER PRIMARY KEY,
-      alunoId INTEGER,
-      referencia TEXT,
-      link_boleto TEXT,
-      linha_digitavel TEXT,
-      codigo_barras TEXT,
-      order_id TEXT,
-      charge_id TEXT,
-      criadoEm TEXT
-    )
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS configuracoes (
-      chave TEXT PRIMARY KEY,
-      valor TEXT
-    )
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS usuarios (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      usuario TEXT UNIQUE,
-      nome TEXT,
-      senha TEXT,
-      primeiroAcesso INTEGER DEFAULT 1
-    )
-  `);
-
-  db.run(`
-    INSERT OR IGNORE INTO usuarios
-    (usuario, nome, senha, primeiroAcesso)
-    VALUES
-    ('rosangela', 'Rosângela Rodrigues', '1234', 1),
-    ('adriana', 'Adriana Prado', '1234', 1),
-    ('joao', 'João Pedro Pontes', '1234', 1)
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS cobrancas (
-      id INTEGER PRIMARY KEY,
-      responsavel_id INTEGER,
-      referencia TEXT,
-      valor_total REAL,
-      status TEXT DEFAULT 'pendente',
-      link_boleto TEXT,
-      linha_digitavel TEXT,
-      modo TEXT DEFAULT 'manual',
-      criadoEm TEXT
-    )
-  `);
-
-  db.run(`ALTER TABLE cobrancas ADD COLUMN arquivo_boleto TEXT`, () => {});
-  db.run(`ALTER TABLE cobrancas ADD COLUMN origem TEXT DEFAULT 'manual'`, () => {});
-  db.run(`ALTER TABLE cobrancas ADD COLUMN cpf_detectado TEXT`, () => {});
-  db.run(`ALTER TABLE cobrancas ADD COLUMN nome_detectado TEXT`, () => {});
-  db.run(`ALTER TABLE cobrancas ADD COLUMN vencimento_detectado TEXT`, () => {});
-  db.run(`ALTER TABLE cobrancas ADD COLUMN codigo_barras TEXT`, () => {});
-  db.run(`ALTER TABLE cobrancas ADD COLUMN confianca TEXT`, () => {});
-  db.run(`ALTER TABLE cobrancas ADD COLUMN whatsapp_enviado INTEGER DEFAULT 0`, () => {});
-
-});
-
 /* Boletos — garante o bucket do Supabase Storage no startup (src/services/boletos.js) */
 require('./src/services/boletos');
 
-
-function all(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => {
-      if (err) reject(err);
-      else resolve(rows);
-    });
-  });
-}
-
-function run(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function(err) {
-      if (err) reject(err);
-      else resolve(this);
-    });
-  });
-}
 
 /* Tempo real (Socket.IO) — src/services/realtime.js */
 require('./src/services/realtime').init(io);
