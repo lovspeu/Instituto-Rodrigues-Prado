@@ -37,8 +37,9 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       // 'unsafe-inline' ainda necessario por causa dos onclick inline (removidos na Fase 8)
       scriptSrc: ["'self'", 'https://cdnjs.cloudflare.com', "'unsafe-inline'"],
-      styleSrc: ["'self'", 'https://cdnjs.cloudflare.com', "'unsafe-inline'"],
-      fontSrc: ["'self'", 'https://cdnjs.cloudflare.com', 'data:'],
+      // Google Fonts (Inter) e importado no style.css; as fontes vem de fonts.gstatic.com
+      styleSrc: ["'self'", 'https://cdnjs.cloudflare.com', 'https://fonts.googleapis.com', "'unsafe-inline'"],
+      fontSrc: ["'self'", 'https://cdnjs.cloudflare.com', 'https://fonts.gstatic.com', 'data:'],
       imgSrc: ["'self'", 'data:', 'https:'],
       connectSrc: ["'self'", 'https:', 'wss:', 'ws:'],
       objectSrc: ["'none'"],

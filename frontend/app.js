@@ -584,6 +584,8 @@ function mostrarUsuarioNoTopo(usuario){
 
 async function logout(){
 
+  // Encerra a sessao no servidor (limpa o cookie). Nada abaixo pode impedir
+  // o redirecionamento final para a tela de login.
   try{
     await fetch('/api/auth/logout', {
       method:'POST',
@@ -593,14 +595,17 @@ async function logout(){
     console.error('Erro ao encerrar sessão:', error);
   }
 
-  // Limpa residuos antigos que porventura existam
-  localStorage.removeItem('logado');
-  localStorage.removeItem('usuarioLogado');
+  try{
+    localStorage.removeItem('logado');
+    localStorage.removeItem('usuarioLogado');
+  }catch(e){}
 
-  desconectarSocket();
+  try{ desconectarSocket(); }catch(e){}
+
   usuarioLogado = null;
 
-  location.reload();
+  // Vai para a raiz; verificarLogin verá 401 (cookie limpo) e mostrará o login.
+  window.location.replace('/');
 
 }
 
