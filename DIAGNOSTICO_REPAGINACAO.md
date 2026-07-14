@@ -467,7 +467,22 @@ Técnica: mover código para `src/` e, no `server.js`, trocar a definição inli
 | `src/services/realtime.js` | io + atualizarSistema | `aec8edf` |
 | `src/services/boletos.js` | uploadBoleto, garantirBucket, uploadParaSupabase, encontrarResponsavelPorBoleto | `dc34762` |
 
-**Resultado parcial:** `server.js` 3043 → **1988 linhas** (−35%).
-**Falta:** `src/services/whatsapp.js` (Baileys + fila de cobranças — estado compartilhado, mais
-arriscado) e split das rotas em `src/routes/*.routes.js` + `src/app.js` + entrypoint. Continuar
-em incrementos verificados. Manter `server.js` na raiz (Render roda `node server.js`).
+**Serviços extraídos:** relatorios, realtime, boletos.
+
+### REMOÇÃO DO WHATSAPP ✅ (a pedido do usuário) — commit `6be1841`
+Removida toda a integração **Baileys** (conexão com sessão, QR, auto-envio, fila de cobranças):
+backend (`iniciarWhatsapp`, estado, rotas `/api/whatsapp/*`, `enviar-em-massa`, `fila-status`) +
+frontend (tela de conexão, menu, auto-envio, polling) + deps `@whiskeysockets/baileys`, `qrcode`,
+`pino`. **Preservado:** envio manual via link `wa.me`, marcar/desmarcar enviado, coluna
+`whatsapp_enviado` e dados no Supabase. Auth do socket (`io.use`) preservada. −2.626 linhas.
+
+### FASE 5 — CONCLUÍDA ✅ — commit `b954ccf`
+Split completo das rotas em `src/routes/` (auth, clientes, alunos, financeiro, pagamentos,
+mensalidadesResolvidas, boletosMensais, configuracoes, cobrancas, relatorios) via `express.Router()`;
+`server.js` virou orquestrador (setup + guard + `app.use` dos routers + catch-all + listen).
+Rotas com `__dirname` ajustadas para `process.cwd()`. Requires órfãos removidos.
+**`server.js`: 3043 → 383 linhas (−87%).** Validado por `node --check` + smoke test HTTP em cada passo.
+
+Estrutura final: `src/config/{env,supabase}` · `src/utils/{format,mensalidades}` ·
+`src/middlewares/auth` · `src/services/{relatorios,realtime,boletos}` · `src/routes/*.routes`.
+**Pendente (Fase 6):** remover SQLite (`db`, `all()`/`run()`, dep `sqlite3`).
