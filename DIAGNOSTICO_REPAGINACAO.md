@@ -420,3 +420,19 @@ por testes unitários das primitivas (bcrypt/JWT/cookie/política — 12/12 OK).
 **Nota de ambiente:** o teste local completo (boot contra o Supabase) não é possível aqui —
 Node 20 local + `@supabase/supabase-js` 2.108 exige WebSocket nativo (Node ≥22, como no Render).
 Validação local feita com Supabase/qrcode mockados + testes das primitivas de segurança.
+
+### REMOÇÃO DO PAGBANK ✅ (a pedido do usuário)
+Removida toda a integração PagBank/PagSeguro. Boletos passam a ser **importados manualmente** (PDF)
+na Central de Cobranças; envio por WhatsApp preservado.
+- **Backend:** rota `POST /api/boletos` removida; config `PAGBANK_*` e logs removidos; banner e
+  default de `origem` ajustados (→ `manual`).
+- **Frontend:** funções `gerarBoletoMensalidade` (era código morto) e `gerarBoletoResponsavel`
+  removidas; botões "Gerar Boleto PagBank" removidos; toggle "Modo de Cobrança" removido
+  (sistema fica sempre em modo manual, box de importação sempre visível); rótulos "Gerado pela
+  PagBank" → "Boleto".
+- **Config/docs:** `PAGBANK_TOKEN`/`PAGBANK_ENV` removidos de `.env.example`, `render.yaml`,
+  `GUIA_DE_DEPLOY.md`, `GUIA_DE_SEGURANCA.md`, `README.md`.
+- **Preservado:** importação manual de boletos, envio WhatsApp, central de cobranças e **todos os
+  dados no Supabase** (cobranças/boletos já existentes continuam visíveis).
+- **Pendências:** revogar o token PagBank exposto (não precisa gerar novo). CSS órfão
+  `.modo-cobranca-card` a limpar na fase de CSS. `BE-06` (endereço fixo do boleto) tornou-se obsoleto.

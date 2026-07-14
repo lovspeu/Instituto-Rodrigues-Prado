@@ -25,10 +25,6 @@ services:
         sync: false
       - key: SUPABASE_KEY
         sync: false
-      - key: PAGBANK_TOKEN
-        sync: false
-      - key: PAGBANK_ENV
-        value: sandbox
       # URL publica do proprio servico (para travar CORS/Socket.IO).
       # Ex.: https://instituto-rodrigues-prado.onrender.com
       - key: ALLOWED_ORIGINS

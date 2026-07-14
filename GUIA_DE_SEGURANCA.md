@@ -28,7 +28,8 @@
 | `ALLOWED_ORIGINS` | Recomendada | URL(s) do sistema, separadas por vírgula. Ex.: `https://SEU-APP.onrender.com`. Sem isso, CORS/Socket.IO aceitam qualquer origem. |
 | `ADMIN_USERS` | Opcional | Padrão: `rosangela,adriana,joao`. |
 | `SUPABASE_URL`, `SUPABASE_KEY` | Sim | Já existentes. |
-| `PAGBANK_TOKEN`, `PAGBANK_ENV` | Sim | Já existentes. |
+
+> **PagBank foi removido do sistema.** Não há mais `PAGBANK_TOKEN`/`PAGBANK_ENV`. Apenas **revogue** o token antigo (ele foi exposto no histórico) — ver seção 2.
 
 > Gere um `JWT_SECRET` com: `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`
 
@@ -42,7 +43,7 @@ Portanto, rotacione **antes ou logo após** a limpeza:
 
 | # | Credencial / segredo | Onde estava | Ação |
 |---|----------------------|-------------|------|
-| 1 | **Token do PagBank** | `.env` (versionado) | Gerar novo token no painel PagBank/PagSeguro e substituir em `.env` local e no Render. Revogar o antigo. |
+| 1 | **Token do PagBank** | `.env` (versionado) | **PagBank foi removido do sistema.** Apenas **revogue** o token no painel PagBank/PagSeguro (não precisa gerar novo). |
 | 2 | **Chave do Supabase** (`SUPABASE_KEY`) | Render (não no `.env` local) | Se for a chave de serviço/anon exposta em algum lugar, **rotacionar** no painel Supabase (Settings → API). Preferir a chave `anon` no cliente e manter a `service_role` só no servidor. |
 | 3 | **Senha do banco Supabase** | Arquivo `senha do banco de dados supabase in.txt` (na pasta pai) | **Trocar** a senha do Postgres no painel Supabase (Settings → Database) e **apagar** esse arquivo `.txt`. |
 | 4 | **Sessão do WhatsApp** | `.wwebjs_auth/` (246 arquivos versionados) | **Desconectar/deslogar** o WhatsApp pelo próprio sistema (ou no app do celular: Aparelhos conectados → sair) e reconectar via QR. A sessão vazada deixa de valer. |

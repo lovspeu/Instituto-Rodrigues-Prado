@@ -322,7 +322,7 @@ db.serialize(() => {
   `);
 
   db.run(`ALTER TABLE cobrancas ADD COLUMN arquivo_boleto TEXT`, () => {});
-  db.run(`ALTER TABLE cobrancas ADD COLUMN origem TEXT DEFAULT 'pagbank'`, () => {});
+  db.run(`ALTER TABLE cobrancas ADD COLUMN origem TEXT DEFAULT 'manual'`, () => {});
   db.run(`ALTER TABLE cobrancas ADD COLUMN cpf_detectado TEXT`, () => {});
   db.run(`ALTER TABLE cobrancas ADD COLUMN nome_detectado TEXT`, () => {});
   db.run(`ALTER TABLE cobrancas ADD COLUMN vencimento_detectado TEXT`, () => {});
@@ -775,17 +775,7 @@ if (error) throw error;
 
   }
 });
-/* PAGBANK */
-const PAGBANK_TOKEN = process.env.PAGBANK_TOKEN;
-const PAGBANK_ENV = process.env.PAGBANK_ENV || 'sandbox';
-
-const PAGBANK_URL =
-  PAGBANK_ENV === 'production'
-    ? 'https://api.pagseguro.com/orders'
-    : 'https://sandbox.api.pagseguro.com/orders';
-
-console.log('PAGBANK_ENV:', PAGBANK_ENV);
-console.log('PAGBANK configurado:', !!PAGBANK_TOKEN);
+/* PAGBANK removido — cobrancas usam apenas importacao manual de boletos */
 
 /* FRONTEND */
 app.use(express.static(path.join(__dirname, 'frontend')));
@@ -1756,7 +1746,7 @@ app.post('/api/cobrancas', async (req, res) => {
         link_boleto,
         linha_digitavel,
         modo,
-        origem: origem || 'pagbank',
+        origem: origem || 'manual',
         criadoem: criadoEm
       }]);
 
@@ -1885,192 +1875,6 @@ app.patch('/api/cobrancas/:id/whatsapp', async (req, res) => {
   }
 });
 
-/* GERAR BOLETO PAGBANK */
-app.post('/api/boletos', async (req, res) => {
-  try {
-    const {
-      aluno,
-      responsavel,
-      cpf,
-      email,
-      telefone,
-      valor,
-      vencimento,
-      referencia
-    } = req.body;
-
-    if (!PAGBANK_TOKEN) {
-      return res.status(500).json({
-        erro: 'Token do PagBank não configurado no arquivo .env'
-      });
-    }
-
-    if (!aluno || !responsavel || !cpf || !email || !telefone || !valor || !vencimento || !referencia) {
-      return res.status(400).json({
-        erro: 'Dados obrigatórios ausentes para gerar boleto'
-      });
-    }
-
-    const telefoneLimpo = String(telefone).replace(/\D/g, '');
-    const cpfLimpo = String(cpf).replace(/\D/g, '');
-    const valorCentavos = Math.round(Number(valor) * 100);
-
-    if (cpfLimpo.length !== 11) {
-      return res.status(400).json({
-        erro: 'CPF inválido. Informe um CPF com 11 dígitos.'
-      });
-    }
-
-    if (telefoneLimpo.length < 10 || telefoneLimpo.length > 11) {
-      return res.status(400).json({
-        erro: 'Telefone inválido. Use DDD + número.'
-      });
-    }
-
-    if (!valorCentavos || valorCentavos <= 0) {
-      return res.status(400).json({
-        erro: 'Valor inválido para gerar boleto.'
-      });
-    }
-
-    const hoje = new Date();
-
-const dataVencimento = new Date();
-dataVencimento.setDate(hoje.getDate() + 3);
-
-const ano = dataVencimento.getFullYear();
-const mes = String(dataVencimento.getMonth() + 1).padStart(2, '0');
-const dia = String(dataVencimento.getDate()).padStart(2, '0');
-
-const dueDate = `${ano}-${mes}-${dia}`;
-
-    const payload = {
-      reference_id: `mensalidade-${Date.now()}`,
-
-      customer: {
-        name: responsavel,
-        email,
-        tax_id: cpfLimpo,
-        phones: [
-          {
-            country: '55',
-            area: telefoneLimpo.slice(0, 2),
-            number: telefoneLimpo.slice(2),
-            type: 'MOBILE'
-          }
-        ]
-      },
-
-      items: [
-        {
-          reference_id: `mensalidade-${referencia}`,
-          name: `Mensalidade ${referencia} - ${aluno}`,
-          quantity: 1,
-          unit_amount: valorCentavos
-        }
-      ],
-
-      charges: [
-        {
-          reference_id: `boleto-${Date.now()}`,
-          description: `Mensalidade ${referencia} - ${aluno}`,
-          amount: {
-            value: valorCentavos,
-            currency: 'BRL'
-          },
-          payment_method: {
-            type: 'BOLETO',
-            boleto: {
-              due_date: dueDate,
-              instruction_lines: {
-                line_1: 'Pagamento da mensalidade escolar.',
-                line_2: 'Não receber após o vencimento.'
-              },
-              holder: {
-                name: responsavel,
-                tax_id: cpfLimpo,
-                email,
-                address: {
-  country: 'BRA',
-  region: 'Ceara',
-  region_code: 'CE',
-  city: 'Fortaleza',
-  postal_code: '60160120',
-  street: 'Avenida Santos Dumont',
-  number: '1000',
-  locality: 'Aldeota'
-}
-              }
-            }
-          }
-        }
-      ]
-    };
-
-    // Nao logar o payload: contem CPF, nome e e-mail do responsavel.
-
-    const resposta = await fetch(PAGBANK_URL, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${PAGBANK_TOKEN}`,
-        'Content-Type': 'application/json',
-        Accept: 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const texto = await resposta.text();
-
-    if (!resposta.ok) {
-      console.error('PagBank respondeu status', resposta.status);
-    }
-
-    let dados = {};
-
-    try {
-      dados = JSON.parse(texto);
-    } catch {
-      dados = { raw: texto };
-    }
-
-    if (!resposta.ok) {
-      return res.status(resposta.status).json({
-        erro: 'Erro ao gerar boleto no PagBank',
-        detalhes: dados
-      });
-    }
-
-    const charge = dados.charges?.[0];
-    const boleto = charge?.payment_method?.boleto;
-
-    atualizarSistema();
-
-    res.json({
-      sucesso: true,
-      order_id: dados.id,
-      charge_id: charge?.id,
-      linha_digitavel: boleto?.formatted_barcode || boleto?.barcode || null,
-      codigo_barras: boleto?.barcode || null,
-      link_boleto:
-        charge?.links?.find(link => link.media === 'application/pdf')?.href ||
-        dados.links?.find(link => link.media === 'application/pdf')?.href ||
-        null,
-      imagem_boleto:
-        charge?.links?.find(link => link.media === 'image/png')?.href ||
-        dados.links?.find(link => link.media === 'image/png')?.href ||
-        null,
-      resposta_pagbank: dados
-    });
-
-  } catch (error) {
-    console.log('ERRO INTERNO BOLETO:', error);
-
-    res.status(500).json({
-      erro: 'Erro interno ao gerar boleto',
-      detalhes: error.message
-    });
-  }
-});
 
 /* =========================================================
 WHATSAPP BAILEYS
@@ -3252,9 +3056,6 @@ INSTITUTO RODRIGUES PRADO
 
 Servidor Online:
 http://localhost:${PORT}
-
-PagBank:
-${PAGBANK_ENV}
 
 Banco:
 Supabase PostgreSQL

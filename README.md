@@ -1,7 +1,7 @@
 # Instituto Rodrigues Prado — Sistema de Gestão
 
 Sistema administrativo e financeiro do Instituto Rodrigues Prado: responsáveis, alunos,
-financeiro, mensalidades, central de cobranças, boletos (PagBank), envio por WhatsApp,
+financeiro, mensalidades, central de cobranças, importação de boletos, envio por WhatsApp,
 relatórios em PDF e atualização em tempo real.
 
 ## Tecnologias
@@ -9,7 +9,6 @@ relatórios em PDF e atualização em tempo real.
 - **Supabase (PostgreSQL)** — fonte oficial dos dados
 - **Socket.IO** — atualização em tempo real
 - **Baileys** (`@whiskeysockets/baileys`) — integração WhatsApp
-- **PagBank / PagSeguro** — geração de boletos
 - **PDFKit** — relatórios em PDF (no backend)
 - Frontend em HTML/CSS/JS
 

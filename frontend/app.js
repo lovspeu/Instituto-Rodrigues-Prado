@@ -1,6 +1,5 @@
 /* =========================================================
 APP.JS — INSTITUTO RODRIGUES PRADO
-VERSÃO SQLITE + PAGBANK
 ========================================================= */
 
 /* =========================================================
@@ -693,8 +692,7 @@ async function carregarDados(){
     modoCensura = false;
   }
 
-  modoCobranca =
-  configuracoes.modo_cobranca || 'manual';
+  modoCobranca = 'manual';
 
 }
 
@@ -1791,108 +1789,6 @@ function calcularVencimentoBoleto(referencia, dia){
 
 }
 
-async function gerarBoletoMensalidade(alunoId){
-
-  const aluno =
-  alunos.find(a => Number(a.id) === Number(alunoId));
-
-  if(!aluno){
-    alert('Aluno não encontrado.');
-    return;
-  }
-
-  const cliente =
-  clientes.find(c => c.nome === aluno.responsavel);
-
-  if(!cliente){
-    alert('Responsável não encontrado.');
-    return;
-  }
-
-  const referencia =
-  obterReferenciaFiltro();
-
-  const boletoExistente =
-  obterBoleto(alunoId, referencia);
-
-  if(boletoExistente && boletoExistente.link_boleto){
-
-    window.open(boletoExistente.link_boleto, '_blank');
-
-    return;
-
-  }
-
-  try{
-
-    const resposta = await fetch('/api/boletos', {
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify({
-        aluno:aluno.nome,
-        responsavel:cliente.nome,
-        cpf:cliente.cpf,
-        email:cliente.email,
-        telefone:cliente.telefone,
-        valor:aluno.mensalidade,
-        vencimento:calcularVencimentoBoleto(referencia, aluno.vencimento),
-        referencia
-      })
-    });
-
-    const dados =
-    await resposta.json();
-
-    if(!resposta.ok){
-
-      console.error(
-        JSON.stringify(dados, null, 2)
-      );
-
-      alert(
-        JSON.stringify(dados, null, 2)
-      );
-
-      return;
-
-    }
-
-    const boleto = {
-      id:Date.now(),
-      alunoId,
-      referencia,
-      link_boleto:dados.link_boleto,
-      linha_digitavel:dados.linha_digitavel,
-      codigo_barras:dados.codigo_barras,
-      order_id:dados.order_id,
-      charge_id:dados.charge_id,
-      criadoEm:new Date().toLocaleDateString('pt-BR')
-    };
-
-    await apiPost('/api/boletosMensais', boleto);
-
-    boletosMensais.push(boleto);
-
-    renderizarMensalidades();
-
-    if(dados.link_boleto){
-      window.open(dados.link_boleto, '_blank');
-    }else{
-      alert('Boleto gerado, mas o link não foi retornado.');
-    }
-
-  }catch(error){
-
-    console.error(error);
-
-    alert('Erro ao conectar com o servidor.');
-
-  }
-
-}
-
 async function removerBoleto(alunoId, referencia){
 
   const confirmar =
@@ -2272,12 +2168,12 @@ if(filtroStatus !== 'todos'){
                   <span class="boleto-origem ${
                     cobranca.origem === 'manual'
                     ? 'origem-manual'
-                    : 'origem-pagbank'
+                    : 'origem-boleto'
                   }">
                     ${
                       cobranca.origem === 'manual'
                       ? 'Importado Manualmente'
-                      : 'Gerado pela PagBank'
+                      : 'Boleto'
                     }
                   </span>
 
@@ -2329,31 +2225,18 @@ if(filtroStatus !== 'todos'){
                 </button>
               `
               : `
-                ${
-                  modoCobranca === 'manual'
-                  ? `
-                    <button
-                      onclick="mostrarDadosBoletoResponsavel('${grupo.responsavel}')"
-                    >
-                      Ver dados do boleto
-                    </button>
+                <button
+                  onclick="mostrarDadosBoletoResponsavel('${grupo.responsavel}')"
+                >
+                  Ver dados do boleto
+                </button>
 
-                    <button
-                      class="btn-gerar-boleto"
-                      onclick="abrirImportacaoManual('${grupo.responsavel}')"
-                    >
-                      Importar Boleto
-                    </button>
-                  `
-                  : `
-                    <button
-                      class="btn-gerar-boleto"
-                      onclick="gerarBoletoResponsavel('${grupo.responsavel}')"
-                    >
-                      Gerar Boleto
-                    </button>
-                  `
-                }
+                <button
+                  class="btn-gerar-boleto"
+                  onclick="abrirImportacaoManual('${grupo.responsavel}')"
+                >
+                  Importar Boleto
+                </button>
               `
             }
 
@@ -2432,99 +2315,6 @@ const total =
     alunos: grupoAlunos,
     total
   };
-
-}
-
-async function gerarBoletoResponsavel(nomeResponsavel){
-
-  const grupo = obterGrupoResponsavel(nomeResponsavel);
-  const cliente = grupo.responsavel;
-
-  if(!cliente){
-    alert('Responsável não encontrado.');
-    return;
-  }
-
-  const referencia = obterReferenciaCentral();
-
-  const cobrancaExistente = cobrancas.find(c =>
-    Number(c.responsavel_id) === Number(cliente.id) &&
-    c.referencia === referencia
-  );
-
-  if(cobrancaExistente && cobrancaExistente.link_boleto){
-
-  if(Number(cobrancaExistente.valor_total) === Number(grupo.total)){
-    window.open(cobrancaExistente.link_boleto, '_blank');
-    return;
-  }
-
-  await apiDelete(`/api/cobrancas/${cobrancaExistente.id}`);
-
-  cobrancas =
-    cobrancas.filter(c =>
-      Number(c.id) !== Number(cobrancaExistente.id)
-    );
-
-}
-
-  try{
-
-    const resposta = await fetch('/api/boletos', {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json' },
-      body:JSON.stringify({
-        aluno: grupo.alunos.map(a => a.nome).join(', '),
-        responsavel: cliente.nome,
-        cpf: cliente.cpf,
-        email: cliente.email,
-        telefone: cliente.telefone,
-        valor: grupo.total,
-        vencimento: calcularVencimentoBoleto(
-          referencia,
-          grupo.alunos[0].vencimento
-        ),
-        referencia
-      })
-    });
-
-    const dados = await resposta.json();
-
-    if(!resposta.ok){
-      alert(dados.erro || 'Erro ao gerar boleto.');
-      return;
-    }
-
-    const cobranca = {
-      id: Date.now(),
-      responsavel_id: cliente.id,
-      referencia,
-      valor_total: grupo.total,
-      status:'pendente',
-      link_boleto:dados.link_boleto,
-      linha_digitavel:dados.linha_digitavel,
-      modo:modoCobranca,
-      origem:'pagbank',
-      criadoEm:new Date().toLocaleDateString('pt-BR')
-    };
-
-    await apiPost('/api/cobrancas', cobranca);
-
-    await carregarDados();
-
-    renderizarCentralCobrancas();
-    atualizarDashboard();
-
-    alert('Boleto gerado com sucesso.');
-
-    if(dados.link_boleto){
-      window.open(dados.link_boleto, '_blank');
-    }
-
-  }catch(error){
-    console.error(error);
-    alert('Erro ao gerar boleto.');
-  }
 
 }
 
@@ -3874,51 +3664,13 @@ async function desconectarWhatsapp(){
   }
 
 }
-async function alternarModoCobranca(){
-
-  modoCobranca =
-    modoCobranca === 'manual'
-    ? 'automatico'
-    : 'manual';
-
-  await apiPatch('/api/configuracoes', {
-    chave: 'modo_cobranca',
-    valor: modoCobranca
-  });
-
-  atualizarBotaoModoCobranca();
-  renderizarCentralCobrancas();
-
-}
+// PagBank removido: o sistema opera sempre em modo manual (importar boleto).
+// Mantida para compatibilidade com os pontos de chamada; garante o box de importacao visivel.
 function atualizarBotaoModoCobranca(){
-
-  const btn = document.getElementById('btnModoCobranca');
   const boxManual = document.getElementById('boxImportacaoManual');
-
-  if(!btn) return;
-
-  if(modoCobranca === 'manual'){
-
-    btn.innerText = 'Modo: Manual';
-    btn.classList.add('manual');
-    btn.classList.remove('automatico');
-
-    if(boxManual){
-      boxManual.style.display = 'flex';
-    }
-
-  }else{
-
-    btn.innerText = 'Modo: Automático';
-    btn.classList.add('automatico');
-    btn.classList.remove('manual');
-
-    if(boxManual){
-      boxManual.style.display = 'none';
-    }
-
+  if(boxManual){
+    boxManual.style.display = 'flex';
   }
-
 }
 
 async function importarBoletoManual(){
@@ -4470,7 +4222,7 @@ function renderizarCentralCobrancas(){
             ? '<div class="cc-linha-digitavel"><span>Linha digitável</span><small>' + cobranca.linha_digitavel + '</small></div>'
             : '') +
           '<div class="cc-origem">' +
-            (cobranca.origem === 'manual' ? '📎 Importado manualmente' : '⚡ Gerado via PagBank') +
+            (cobranca.origem === 'manual' ? '📎 Importado manualmente' : '📄 Boleto') +
           '</div>' +
         '</div>'
       : '';
@@ -4509,20 +4261,13 @@ function renderizarCentralCobrancas(){
 
     } else {
 
-      if(modoCobranca === 'manual'){
-        acoesHtml +=
-          '<button onclick="mostrarDadosBoletoResponsavel(\'' + nomeResp + '\')">' +
-            '<i class="fa-solid fa-info-circle"></i> Ver dados' +
-          '</button>' +
-          '<button class="btn-gerar-boleto" onclick="abrirImportacaoManual(\'' + nomeResp + '\')">' +
-            '<i class="fa-solid fa-upload"></i> Importar Boleto' +
-          '</button>';
-      } else {
-        acoesHtml +=
-          '<button class="btn-gerar-boleto" onclick="gerarBoletoResponsavel(\'' + nomeResp + '\')">' +
-            '<i class="fa-solid fa-bolt"></i> Gerar Boleto PagBank' +
-          '</button>';
-      }
+      acoesHtml +=
+        '<button onclick="mostrarDadosBoletoResponsavel(\'' + nomeResp + '\')">' +
+          '<i class="fa-solid fa-info-circle"></i> Ver dados' +
+        '</button>' +
+        '<button class="btn-gerar-boleto" onclick="abrirImportacaoManual(\'' + nomeResp + '\')">' +
+          '<i class="fa-solid fa-upload"></i> Importar Boleto' +
+        '</button>';
 
     }
 

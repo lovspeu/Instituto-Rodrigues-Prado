@@ -32,9 +32,9 @@ git ls-files | grep -Ei '\.env$|wwebjs|database\.db|\.pdf$|node_modules'   # dev
 | `JWT_SECRET` | (gerar) | `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` — ou deixar o Render gerar. |
 | `SUPABASE_URL` | (o seu) | Mesmo do sistema atual. |
 | `SUPABASE_KEY` | (rotacionada) | Ver `GUIA_DE_SEGURANCA.md`. |
-| `PAGBANK_TOKEN` | (rotacionado) | Novo token do PagBank. |
-| `PAGBANK_ENV` | `sandbox` ou `production` | Conforme o uso real. |
 | `ALLOWED_ORIGINS` | `https://SEU-APP.onrender.com` | URL pública do Render novo. Trava CORS/Socket.IO. |
+
+> **PagBank foi removido do sistema** — não configure `PAGBANK_TOKEN`/`PAGBANK_ENV`. Os boletos agora são **importados manualmente** (PDF) na Central de Cobranças.
 
 ## 3. Build & Start (Render)
 - **Build Command:** `npm install`
