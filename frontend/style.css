@@ -1884,7 +1884,7 @@ form{
   position:absolute;
   inset:0;
 
-  background:url('assets/instituto.png')
+  background:url('assets/instituto.webp')
              center center / cover no-repeat;
 
   pointer-events:none;
