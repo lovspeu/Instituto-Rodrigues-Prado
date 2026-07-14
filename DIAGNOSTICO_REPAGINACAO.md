@@ -451,3 +451,23 @@ na Central de Cobranças; envio por WhatsApp preservado.
 
 **Validado:** `node --check` + smoke test HTTP (boot OK, `/api` 401, públicas 200). Originais das
 imagens preservados (git history + backup no scratchpad).
+
+### FASE 5 — Modularização do backend 🟨 EM ANDAMENTO
+Técnica: mover código para `src/` e, no `server.js`, trocar a definição inline por `require`
+(pontos de chamada preservados → comportamento idêntico), com **boot test a cada extração**.
+
+| Módulo criado | Conteúdo | Commit |
+|---------------|----------|--------|
+| `src/config/env.js` | env + segurança (JWT, origens, admin) + origemPermitida | `712f7e7` |
+| `src/config/supabase.js` | cliente Supabase | `712f7e7` |
+| `src/utils/format.js` | formatarMoeda, limparNumero, detect*, referências, telefone | `712f7e7` |
+| `src/utils/mensalidades.js` | status/atraso das mensalidades | `712f7e7` |
+| `src/middlewares/auth.js` | token/cookie/sessão, requireAuth, requireAdmin, rate-limit | `712f7e7` |
+| `src/services/relatorios.js` | desenhar* + gerarRelatorioFinanceiroPremium (PDF) | `aec8edf` |
+| `src/services/realtime.js` | io + atualizarSistema | `aec8edf` |
+| `src/services/boletos.js` | uploadBoleto, garantirBucket, uploadParaSupabase, encontrarResponsavelPorBoleto | `dc34762` |
+
+**Resultado parcial:** `server.js` 3043 → **1988 linhas** (−35%).
+**Falta:** `src/services/whatsapp.js` (Baileys + fila de cobranças — estado compartilhado, mais
+arriscado) e split das rotas em `src/routes/*.routes.js` + `src/app.js` + entrypoint. Continuar
+em incrementos verificados. Manter `server.js` na raiz (Render roda `node server.js`).
