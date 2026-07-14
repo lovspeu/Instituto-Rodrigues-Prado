@@ -485,4 +485,14 @@ Rotas com `__dirname` ajustadas para `process.cwd()`. Requires órfãos removido
 
 Estrutura final: `src/config/{env,supabase}` · `src/utils/{format,mensalidades}` ·
 `src/middlewares/auth` · `src/services/{relatorios,realtime,boletos}` · `src/routes/*.routes`.
-**Pendente (Fase 6):** remover SQLite (`db`, `all()`/`run()`, dep `sqlite3`).
+
+### FASE 6 — Banco de dados ✅ (parte principal) — commit `cb55224`
+- **DB-01 ✅ SQLite removido** (era código morto — nenhum módulo `src/` lia dele): `require('sqlite3')`,
+  `const db`, todo o `db.serialize` (CREATE/seed/ALTER), helpers `all()`/`run()`, dep `sqlite3` e os
+  arquivos `database.db`. `server.js` 383 → **238 linhas**.
+- **Efeito colateral:** vulnerabilidades npm **12 → 4** (baileys/qrcode/pino/sqlite3 removidos).
+- **DB-04 (índices) + revisão de schema/RLS:** documentado em `MIGRACOES_SUPABASE.md` (SQL de índices
+  baseado nas consultas reais, para rodar no SQL Editor — não destrutivo). ⏸️ requer ação do usuário.
+- **DB-02/DB-03 (`.select('*')`, filtro/paginação no servidor, endpoint do Dashboard):** documentado
+  como recomendação em `MIGRACOES_SUPABASE.md` §3 — exige mudança coordenada no frontend + teste;
+  não aplicado às cegas (dados de produção). ⏳
