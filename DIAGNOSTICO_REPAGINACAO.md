@@ -445,7 +445,7 @@ na Central de Cobranças; envio por WhatsApp preservado.
 | PERF-04 | ✅ | `logo.png` 1,8 MB → **32 KB** (320×320); `instituto.png` 1,9 MB → **`instituto.webp` 74 KB**; CSS atualizado. **~3,6 MB** a menos no login |
 | REL-03 | ✅ | PDFs de teste removidos de `frontend/assets` (já estavam fora do repo pelo `.gitignore`) |
 | CLEAN-05 | ✅ | `MELHORIAS_V2.txt` (notas obsoletas) removido |
-| BE-03 | ⏸️ | Robô WhatsApp desativado (`processador=null`) — **não removido**: histórico diz "temporário", decidir remover/reativar |
+| BE-03 | ✅ | Robô WhatsApp desativado **removido** (decisão do usuário): `menuSistema`, `responderStatusSistema`, `enviarPdfWhatsApp`, 3× `gerarRelatorio*Sistema`, `nomeMesAtual`, vars `processador`/`gerenciadorContexto` e handler `messages.upsert` (−~400 linhas). Conexão/QR/envio de cobranças preservados; helpers do relatório ativo preservados |
 | CSS órfão | ⬜ | `.modo-cobranca-card` (6 blocos) → limpar na reestruturação de CSS (Fase 8) |
 | CLEAN-07 | ⬜ | `sqlite3` → remover na Fase 6 (Banco) |
 
