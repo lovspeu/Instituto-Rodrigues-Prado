@@ -496,3 +496,28 @@ Estrutura final: `src/config/{env,supabase}` · `src/utils/{format,mensalidades}
 - **DB-02/DB-03 (`.select('*')`, filtro/paginação no servidor, endpoint do Dashboard):** documentado
   como recomendação em `MIGRACOES_SUPABASE.md` §3 — exige mudança coordenada no frontend + teste;
   não aplicado às cegas (dados de produção). ⏳
+
+### 🐛 BUG CRÍTICO ENCONTRADO NO TESTE (Render) — corrigido `cf14738` + `b58845e`
+Ao testar na Render, **nenhum botão com `onclick` funcionava** (Sair, censura, gerar relatório,
+importar boleto, marcar mensalidade paga...). Causa: o **Helmet** aplica por padrão
+`script-src-attr 'none'`, que **bloqueia todos os handlers inline**. Ao configurar a CSP na Fase 3
+eu sobrescrevi `script-src` (com `'unsafe-inline'`), mas o `script-src-attr 'none'` **continuou
+valendo**. O login e o menu seguiam funcionando por usarem `addEventListener` — daí o sintoma
+"só alguns botões não fazem nada".
+**Correção:** `scriptSrcAttr: ["'unsafe-inline'"]` + liberação do Google Fonts
+(`fonts.googleapis.com` em `style-src`, `fonts.gstatic.com` em `font-src`), que também estava
+bloqueado. **Lição:** o Helmet **mescla** com seus defaults — sobrescrever uma diretiva não desliga
+as outras. Na Fase 8 (quando os `onclick` virarem listeners) dá para travar `script-src-attr` de volta.
+
+### FASE 7 — Desempenho ✅ — commit `f70174a`
+| Item | Status | O que foi feito |
+|------|--------|-----------------|
+| PERF-01 | ✅ | `carregarDados()`: 9 requisições **sequenciais** → **`Promise.all`** (paralelas) |
+| PERF-02 | ✅ | **Eventos por domínio**: `atualizarSistema(recurso)` emite `{recurso, timestamp}`; as 22 chamadas nas rotas informam seu domínio; o frontend recarrega **só o recurso alterado** (antes: 9 tabelas a cada mudança). Fallback sem recurso → recarga completa |
+| PERF-02 | ✅ | **Render seletivo**: `renderizarSecaoAtiva()` re-renderiza **só a tela aberta** (antes: as 6 telas a cada evento); cada tela renderiza ao ser aberta |
+| PERF-03 | ✅ | Polling de 15s da fila **removido** (saiu junto com o WhatsApp) |
+| — | ✅ | **Debounce (250ms)** nas 3 buscas (responsáveis, alunos, financeiro) — antes re-renderizavam a lista a cada tecla |
+
+**Pendente (documentado, exige backend+frontend+teste):** paginação, filtro/ordenação no servidor,
+cache com invalidação, skeletons, cancelamento de requisições, endpoint de indicadores do Dashboard
+(ver `MIGRACOES_SUPABASE.md` §3).
