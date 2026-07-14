@@ -1,0 +1,35 @@
+# Blueprint do Render — Instituto Rodrigues Prado
+# Referencia de infraestrutura. Se voce ja criou o servico pela dashboard,
+# use este arquivo como checklist das variaveis de ambiente.
+services:
+  - type: web
+    name: instituto-rodrigues-prado
+    runtime: node
+    plan: free
+    branch: main
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /ping
+    autoDeploy: true
+    envVars:
+      # Fixa Node 22 (necessario: supabase-js 2.x exige WebSocket nativo)
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      # Render gera um segredo forte automaticamente
+      - key: JWT_SECRET
+        generateValue: true
+      # ---- Secretos: preencher na dashboard (sync:false = nao vem do blueprint) ----
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: PAGBANK_TOKEN
+        sync: false
+      - key: PAGBANK_ENV
+        value: sandbox
+      # URL publica do proprio servico (para travar CORS/Socket.IO).
+      # Ex.: https://instituto-rodrigues-prado.onrender.com
+      - key: ALLOWED_ORIGINS
+        sync: false

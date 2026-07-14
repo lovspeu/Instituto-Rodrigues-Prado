@@ -1,0 +1,46 @@
+# Dependencias
+node_modules/
+**/node_modules/
+
+# Variaveis de ambiente e segredos
+.env
+.env.*
+!.env.example
+
+# Banco local (legado SQLite - nao e a fonte oficial)
+database.db
+database/database.db
+*.sqlite
+*.sqlite3
+
+# Uploads e arquivos gerados
+uploads/
+!uploads/.gitkeep
+
+# Sessoes de WhatsApp
+auth_info_baileys/
+.wwebjs_auth/
+.wwebjs_cache/
+
+# PDFs de teste/relatorios no frontend
+frontend/assets/*.pdf
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+
+# Cobertura de testes / build
+coverage/
+dist/
+build/
+
+# Credenciais soltas
+*senha*.txt
+
+# Sistema operacional / editores
+.DS_Store
+desktop.ini
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json

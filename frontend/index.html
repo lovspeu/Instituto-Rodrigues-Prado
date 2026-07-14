@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+  <link rel="icon" type="image/png" href="assets/logo.png">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Instituto Rodrigues Prado</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  />
+
+  <!-- JSPDF -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+</head>
+
+<body>
+
+<!-- =========================================================
+TELA LOGIN
+========================================================= -->
+
+<div id="telaLogin" class="login-container">
+
+  <div class="login-reveal"></div>
+  <div class="login-bg-effect"></div>
+  <div class="login-bg-effect2"></div>
+
+  <div class="login-box">
+
+    <div class="login-logo-area">
+
+      <img
+        src="assets/logo.png"
+        class="login-logo"
+      >
+
+      <div class="logo-glow"></div>
+
+    </div>
+
+    <h1>Instituto Rodrigues Prado</h1>
+
+    <p>
+      Sistema Administrativo Financeiro
+    </p>
+
+    <form id="formLogin">
+
+      <div class="input-group">
+
+        <i class="fa-solid fa-user"></i>
+
+<select id="usuario" required>
+  <option value="">Selecione o usuário</option>
+  <option value="rosangela">Rosângela Rodrigues</option>
+  <option value="adriana">Adriana Prado</option>
+  <option value="joao">João Pedro Pontes</option>
+</select>
+      </div>
+
+      <div class="input-group">
+
+        <i class="fa-solid fa-lock"></i>
+
+<div class="senha-container">
+
+  <input
+    id="senha"
+    type="password"
+    placeholder="Senha"
+    autocomplete="current-password"
+  >
+
+  <button
+    type="button"
+    class="toggle-senha"
+    onclick="alternarVisibilidadeSenha()"
+  >
+    <i
+      id="iconeSenha"
+      class="fa-solid fa-eye"
+    ></i>
+  </button>
+
+</div>
+
+      </div>
+
+      <button type="submit" class="login-btn">
+
+        <i class="fa-solid fa-right-to-bracket"></i>
+
+        Entrar no Sistema
+
+      </button>
+
+      <div id="erroLogin" class="erro-login">
+        Usuário ou senha inválidos
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+<!-- =========================================================
+SISTEMA
+========================================================= -->
+
+<div id="sistema">
+
+<!-- =========================================================
+SIDEBAR
+========================================================= -->
+
+<aside class="sidebar">
+
+  <div class="logo">
+
+    <img
+      src="assets/logo.png"
+      alt="Logo"
+      class="logo-img"
+    >
+
+    <h1>Instituto Rodrigues Prado</h1>
+
+    <p>Sistema Administrativo</p>
+
+  </div>
+
+  <div class="menu">
+
+    <button class="menu-item active" data-section="dashboard">
+
+      <i class="fa-solid fa-chart-line"></i>
+
+      Dashboard
+
+    </button>
+
+    <button class="menu-item" data-section="clientes">
+
+      <i class="fa-solid fa-user-group"></i>
+
+      Responsáveis
+
+    </button>
+
+    <button class="menu-item" data-section="alunos">
+
+      <i class="fa-solid fa-users"></i>
+
+      Alunos
+
+    </button>
+
+    <button class="menu-item" data-section="mensalidades">
+      <i class="fa-solid fa-receipt"></i>
+      Mensalidades
+    </button>
+
+    <button class="menu-item" data-section="financeiro">
+
+      <i class="fa-solid fa-wallet"></i>
+
+      Financeiro
+
+    </button>
+
+    <button class="menu-item" data-section="whatsapp">
+
+  <i class="fa-brands fa-whatsapp"></i>
+
+  WhatsApp
+
+</button>
+
+    <button class="menu-item" data-section="centralCobrancas">
+
+  <i class="fa-solid fa-bell"></i>
+
+  Central de Cobranças
+
+</button>
+
+    <button class="menu-item" data-section="relatorios">
+
+      <i class="fa-solid fa-file-lines"></i>
+
+      Relatórios
+
+    </button>
+
+  </div>
+
+</aside>
+
+<!-- =========================================================
+MAIN
+========================================================= -->
+
+<main class="main">
+
+  <!-- =========================================================
+  TOPBAR
+  ========================================================= -->
+
+  <div class="topbar">
+
+<div>
+
+  <h2>Painel Administrativo</h2>
+
+  <div id="usuarioLogadoTopo" class="usuario-logado-topo">
+  </div>
+
+  <p>
+    Controle completo do Instituto
+  </p>
+
+</div>
+    <div class="topbar-actions">
+
+<div class="user-box">
+
+  <i class="fa-solid fa-user-shield"></i>
+
+  <span id="usuarioBoxTopo">
+    Administrador
+  </span>
+
+</div>
+
+<button
+  id="btnCensura"
+  class="btn-censura"
+  onclick="alternarModoCensura()"
+  title="Censurar informações"
+>
+  <i
+    id="iconeCensura"
+    class="fa-solid fa-eye-slash"
+  ></i>
+</button>
+
+<button
+  onclick="logout()"
+  class="logout-btn"
+>
+        <i class="fa-solid fa-right-from-bracket"></i>
+
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- =========================================================
+  DASHBOARD
+  ========================================================= -->
+<section
+  id="dashboard"
+  class="section active-section"
+>
+
+  <!-- ========================================
+  FILTROS DASHBOARD
+  ========================================= -->
+
+  <div class="dashboard-topo">
+
+    <div class="meses-dashboard">
+
+     <button class="mes-btn active" data-mes="todos">Todos</button>
+<button class="mes-btn" data-mes="1">Jan</button>
+<button class="mes-btn" data-mes="2">Fev</button>
+<button class="mes-btn" data-mes="3">Mar</button>
+<button class="mes-btn" data-mes="4">Abr</button>
+<button class="mes-btn" data-mes="5">Mai</button>
+<button class="mes-btn" data-mes="6">Jun</button>
+<button class="mes-btn" data-mes="7">Jul</button>
+<button class="mes-btn" data-mes="8">Ago</button>
+<button class="mes-btn" data-mes="9">Set</button>
+<button class="mes-btn" data-mes="10">Out</button>
+<button class="mes-btn" data-mes="11">Nov</button>
+<button class="mes-btn" data-mes="12">Dez</button>
+
+    </div>
+
+    <div class="ano-dashboard">
+
+      <select id="filtroAnoDashboard">
+
+  <option value="2025">2025</option>
+  <option value="2026">2026</option>
+  <option value="2027">2027</option>
+  <option value="2028">2028</option>
+  <option value="2029">2029</option>
+  <option value="2030">2030</option>
+  <option value="2031">2031</option>
+  <option value="2032">2032</option>
+  <option value="2033">2033</option>
+  <option value="2034">2034</option>
+  <option value="2035">2035</option>
+  <option value="2036">2036</option>
+  <option value="2037">2037</option>
+  <option value="2038">2038</option>
+  <option value="2039">2039</option>
+  <option value="2040">2040</option>
+
+      </select>
+
+    </div>
+
+  </div>
+
+  <!-- ========================================
+  CARDS PRINCIPAIS
+  ========================================= -->
+
+  <div class="dashboard-cards">
+
+    <!-- CAIXA GLOBAL -->
+
+    <div class="dashboard-card destaque-card">
+
+      <div class="dashboard-icon">
+
+        <i class="fa-solid fa-wallet"></i>
+
+      </div>
+
+      <div>
+
+        <h3>Caixa Atual</h3>
+
+        <p id="caixaAtual">
+          R$ 0,00
+        </p>
+
+        <span>
+          Valor total acumulado
+        </span>
+
+      </div>
+
+    </div>
+
+    <!-- ENTRADAS -->
+
+    <div class="dashboard-card">
+
+      <div class="dashboard-icon green">
+
+        <i class="fa-solid fa-arrow-trend-up"></i>
+
+      </div>
+
+      <div>
+
+        <h3>Entradas</h3>
+
+        <p id="totalEntradas">
+          R$ 0,00
+        </p>
+
+        <span>
+          Recebimentos do período
+        </span>
+
+      </div>
+
+    </div>
+
+    <!-- SAIDAS -->
+
+    <div class="dashboard-card">
+
+      <div class="dashboard-icon red">
+
+        <i class="fa-solid fa-arrow-trend-down"></i>
+
+      </div>
+
+      <div>
+
+        <h3>Saídas</h3>
+
+        <p id="totalSaidas">
+          R$ 0,00
+        </p>
+
+        <span>
+          Gastos do período
+        </span>
+
+      </div>
+
+    </div>
+
+    <!-- LUCRO -->
+
+    <div class="dashboard-card">
+
+      <div class="dashboard-icon blue">
+
+        <i class="fa-solid fa-chart-line"></i>
+
+      </div>
+
+      <div>
+
+<h3>Saldo do Período</h3>
+
+<p id="lucroTotal">
+  R$ 0,00
+</p>
+
+<span>
+  Entradas menos saídas
+</span>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ========================================
+  CARDS SECUNDÁRIOS
+  ========================================= -->
+
+  <div class="dashboard-cards secondary-cards">
+
+    <div class="mini-card">
+
+      <h4>Mensalidades Pendentes</h4>
+
+      <strong id="valorPendente">
+        R$ 0,00
+      </strong>
+
+    </div>
+
+    <div class="mini-card">
+
+      <h4>Mensalidades Recebidas</h4>
+
+      <strong id="valorRecebido">
+        R$ 0,00
+      </strong>
+
+    </div>
+
+    <div class="mini-card">
+
+      <h4>Alunos Ativos</h4>
+
+      <strong id="totalAlunos">
+        0
+      </strong>
+
+    </div>
+
+    <div class="mini-card">
+
+      <h4>Mensalidades Atrasadas</h4>
+
+      <strong id="mensalidadesAtrasadas">
+        0
+      </strong>
+
+    </div>
+
+  </div>
+
+  <!-- ========================================
+  GRID PRINCIPAL
+  ========================================= -->
+
+  <div class="dashboard-grid">
+
+    <!-- RESUMO -->
+
+    <div class="dashboard-box">
+
+      <div class="dashboard-box-header">
+
+        <h2>
+
+          <i class="fa-solid fa-chart-column"></i>
+
+          Resumo Financeiro
+
+        </h2>
+
+      </div>
+
+      <div class="resumo-financeiro">
+
+        <div class="resumo-item">
+
+          <span>Entradas</span>
+
+          <strong id="resumoEntradas">
+            R$ 0,00
+          </strong>
+
+        </div>
+
+        <div class="resumo-item">
+
+          <span>Saídas</span>
+
+          <strong id="resumoSaidas">
+            R$ 0,00
+          </strong>
+
+        </div>
+
+        <div class="resumo-item destaque">
+
+          <span>Saldo do Período</span>
+
+          <strong id="resumoLucro">
+            R$ 0,00
+          </strong>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ULTIMAS -->
+
+    <div class="dashboard-box">
+
+      <div class="dashboard-box-header">
+
+        <h2>
+
+          <i class="fa-solid fa-clock-rotate-left"></i>
+
+          Últimas Movimentações
+
+        </h2>
+
+      </div>
+
+      <div id="ultimasMovimentacoes">
+
+        <div class="movimentacao-vazia">
+
+          Nenhuma movimentação registrada
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ========================================
+  AREA GRAFICOS
+  ========================================= -->
+
+  <div class="graficos-grid">
+
+    <div class="grafico-card">
+
+      <div class="grafico-header">
+
+        <h3>
+
+          <i class="fa-solid fa-chart-simple"></i>
+
+          Fluxo Financeiro
+
+        </h3>
+
+      </div>
+
+      <div class="grafico-placeholder">
+
+        Gráfico financeiro futuramente
+
+      </div>
+
+    </div>
+
+    <div class="grafico-card">
+
+      <div class="grafico-header">
+
+        <h3>
+
+          <i class="fa-solid fa-chart-pie"></i>
+
+          Situação das Mensalidades
+
+        </h3>
+
+      </div>
+
+      <div class="grafico-placeholder">
+
+        Gráfico de mensalidades futuramente
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+  <!-- =========================================================
+RESPONSÁVEIS
+========================================================= -->
+
+<section id="clientes" class="section">
+
+  <div class="form-container">
+
+    <h2>
+      <i class="fa-solid fa-user-group"></i>
+      Cadastrar / Editar Responsável
+    </h2>
+
+    <input type="hidden" id="clienteEditando">
+
+    <form id="formCliente">
+
+      <input
+        type="text"
+        id="nomeCliente"
+        placeholder="Nome do responsável"
+        required
+      >
+
+      <input
+        type="text"
+        id="telefoneCliente"
+        placeholder="Telefone"
+        required
+      >
+
+      <input
+        type="text"
+        id="cpfCliente"
+        placeholder="CPF"
+        required
+      >
+
+      <input
+        type="email"
+        id="emailCliente"
+        placeholder="E-mail"
+        required
+      >
+
+      <button type="submit" id="btnSalvarCliente">
+  <i class="fa-solid fa-plus"></i>
+  Cadastrar Responsável
+</button>
+
+    </form>
+
+  </div>
+
+  <div class="responsaveis-painel">
+
+    <div class="responsaveis-topo">
+
+      <div class="responsavel-card-total">
+        <div>
+          <span>Total de Responsáveis</span>
+          <strong id="totalResponsaveis">0</strong>
+        </div>
+        <i class="fa-solid fa-user-group"></i>
+      </div>
+
+      <div class="responsavel-pesquisa">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input
+          type="text"
+          id="buscarResponsavel"
+          placeholder="Pesquisar por nome, telefone, CPF ou e-mail..."
+        >
+      </div>
+
+    </div>
+
+    <div class="responsaveis-tabela-card">
+
+      <table class="responsaveis-tabela">
+
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>CPF</th>
+            <th>E-mail</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+
+        <tbody id="listaClientes"></tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+  <!-- =========================================================
+  ALUNOS
+  ========================================================= -->
+
+  <section id="alunos" class="section">
+
+    <div class="form-container">
+
+      <h2>
+
+        <i class="fa-solid fa-user-plus"></i>
+
+        Cadastrar Aluno
+
+      </h2>
+
+      <form id="formAluno">
+
+        <input
+          type="text"
+          id="nomeAluno"
+          placeholder="Nome do aluno"
+          required
+        >
+
+        <select id="responsavelAluno" required>
+
+          <option value="">
+            Selecione o responsável
+          </option>
+
+        </select>
+
+<input
+  id="mensalidadeAluno"
+  type="text"
+  inputmode="decimal"
+  placeholder="Mensalidade"
+/>
+        <input
+          type="number"
+          id="vencimentoAluno"
+          placeholder="Dia do vencimento"
+          min="1"
+          max="31"
+          required
+        >
+
+        <button type="submit">
+
+          <i class="fa-solid fa-plus"></i>
+
+          Cadastrar Aluno
+
+        </button>
+
+      </form>
+
+    </div>
+
+    <div class="alunos-topo-lista">
+
+  <input
+    type="text"
+    id="pesquisaAluno"
+    placeholder="Pesquisar aluno..."
+    oninput="renderizarAlunos()"
+  >
+
+  <span id="totalAlunosLista">
+    Total de alunos: 0
+  </span>
+
+</div>
+
+<div id="listaAlunos"></div>
+
+  </section>
+
+ <!-- =========================================================
+MENSALIDADES
+========================================================= -->
+
+<section id="mensalidades" class="section">
+
+  <div class="form-container">
+
+    <h2>
+      <i class="fa-solid fa-receipt"></i>
+      Mensalidades
+    </h2>
+
+    <div class="mensalidade-filtros">
+
+      <div class="card">
+        <label>Mês de referência</label>
+        <input type="month" id="filtroMes">
+      </div>
+
+      <div class="card">
+        <label>Status</label>
+        <select id="filtroStatus">
+          <option value="todos">Todos</option>
+          <option value="pago">Pago</option>
+          <option value="pendente">Pendente</option>
+          <option value="atrasado">Atrasado</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="mensalidade-buttons">
+      <button onclick="renderizarMensalidades()">
+        <i class="fa-solid fa-filter"></i>
+        Filtrar
+      </button>
+    </div>
+
+  </div>
+
+<div class="financeiro-table-container">
+
+  <table class="financeiro-table">
+
+    <thead>
+      <tr>
+        <th>Aluno</th>
+        <th>Responsável</th>
+        <th>Valor</th>
+        <th>Vencimento</th>
+        <th>Status</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+
+    <tbody id="tabelaMensalidades"></tbody>
+
+  </table>
+
+</div>
+
+</section>
+
+<!-- =========================================================
+FINANCEIRO
+========================================================= -->
+
+<section id="financeiro" class="section">
+  <div class="financeiro-resumo">
+
+    <div class="financeiro-card receita">
+      <i class="fa-solid fa-arrow-trend-up"></i>
+
+      <div>
+        <span>Receitas</span>
+        <strong id="financeiroReceitas">R$ 0,00</strong>
+      </div>
+    </div>
+
+    <div class="financeiro-card despesa">
+      <i class="fa-solid fa-arrow-trend-down"></i>
+
+      <div>
+        <span>Despesas</span>
+        <strong id="financeiroDespesas">R$ 0,00</strong>
+      </div>
+    </div>
+
+    <div class="financeiro-card saldo">
+      <i class="fa-solid fa-wallet"></i>
+
+      <div>
+        <span>Saldo</span>
+        <strong id="financeiroSaldo">R$ 0,00</strong>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="form-container">
+
+    <h2>
+      <i class="fa-solid fa-wallet"></i>
+      Nova Movimentação
+    </h2>
+
+    <form id="formFinanceiro">
+
+      <input
+        type="text"
+        id="descricaoFinanceiro"
+        placeholder="Descrição"
+        required
+      >
+
+      <input
+        type="text"
+        id="valorFinanceiro"
+        inputmode="decimal"
+        placeholder="Valor"
+        required
+      >
+
+      <input
+        type="date"
+        id="dataFinanceiro"
+      >
+
+      <select id="tipoFinanceiro">
+
+        <option value="entrada">
+          Entrada
+        </option>
+
+        <option value="saida">
+          Saída
+        </option>
+
+      </select>
+
+      <select id="statusFinanceiro">
+
+        <option value="pago">
+          Pago
+        </option>
+
+        <option value="pendente">
+          Pendente
+        </option>
+
+      </select>
+
+      <select id="categoriaFinanceiro">
+
+        <option value="mensalidade">
+          Mensalidade
+        </option>
+
+        <option value="material">
+          Material
+        </option>
+
+        <option value="salario">
+          Salário
+        </option>
+
+        <option value="energia">
+          Energia
+        </option>
+
+        <option value="agua">
+          Água
+        </option>
+
+        <option value="outros">
+          Outros
+        </option>
+
+      </select>
+
+      <button type="submit">
+        <i class="fa-solid fa-plus"></i>
+        Adicionar Movimentação
+      </button>
+
+    </form>
+
+  </div>
+
+  <div class="financeiro-filtros-periodo">
+
+    <div>
+
+      <label>Mês</label>
+
+      <select id="filtroMesFinanceiro">
+
+        <option value="">Todos</option>
+
+        <option value="1">Janeiro</option>
+        <option value="2">Fevereiro</option>
+        <option value="3">Março</option>
+        <option value="4">Abril</option>
+        <option value="5">Maio</option>
+        <option value="6">Junho</option>
+        <option value="7">Julho</option>
+        <option value="8">Agosto</option>
+        <option value="9">Setembro</option>
+        <option value="10">Outubro</option>
+        <option value="11">Novembro</option>
+        <option value="12">Dezembro</option>
+
+      </select>
+
+    </div>
+
+    <div>
+
+      <label>Ano</label>
+
+      <select id="filtroAnoFinanceiro">
+
+        <option value="">Todos</option>
+
+        <option value="2025">2025</option>
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+        <option value="2029">2029</option>
+        <option value="2030">2030</option>
+
+      </select>
+
+    </div>
+
+  </div>
+
+  <div class="financeiro-busca">
+
+    <i class="fa-solid fa-magnifying-glass"></i>
+
+    <input
+      type="text"
+      id="buscarFinanceiro"
+      placeholder="Buscar movimentação..."
+    >
+
+  </div>
+
+  <div class="financeiro-table-container">
+
+    <table class="financeiro-table">
+
+      <thead>
+
+        <tr>
+
+          <th>Data</th>
+          <th>Descrição</th>
+          <th>Categoria</th>
+          <th>Valor</th>
+          <th>Status</th>
+          <th>Ações</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody id="listaFinanceiro"></tbody>
+
+    </table>
+
+  </div>
+
+</section>
+
+<!-- =========================================================
+WHATSAPP
+========================================================= -->
+<section id="whatsapp" class="section">
+
+  <div class="form-container">
+
+    <h2>
+
+      <i class="fa-brands fa-whatsapp"></i>
+
+      Conexão WhatsApp
+
+    </h2>
+
+    <div class="whatsapp-grid">
+
+      <div class="whatsapp-card">
+
+        <div class="whatsapp-status-area">
+
+          <div class="whatsapp-icon-box">
+
+            <i class="fa-brands fa-whatsapp"></i>
+
+          </div>
+
+          <div>
+
+            <h3>Status da conexão</h3>
+
+            <span id="whatsappStatus" class="status pendente">
+              Desconectado
+            </span>
+
+          </div>
+
+        </div>
+
+        <p class="whatsapp-info">
+          Conecte um WhatsApp ao sistema para enviar cobranças, links e boletos em PDF para os responsáveis.
+        </p>
+
+        <button id="btnDesconectarWhatsapp" onclick="desconectarWhatsapp()" style="display:none;">
+
+          <i class="fa-solid fa-power-off"></i>
+
+          Desconectar WhatsApp
+
+        </button>
+
+      </div>
+
+      <div class="whatsapp-card">
+
+        <h3>
+
+          <i class="fa-solid fa-qrcode"></i>
+
+          QR Code de conexão
+
+        </h3>
+
+        <div id="whatsappQrBox" class="whatsapp-qr-box">
+
+          <div class="whatsapp-qr-placeholder">
+
+            <i class="fa-solid fa-qrcode"></i>
+
+            <p>Aguardando QR Code...</p>
+
+          </div>
+
+        </div>
+
+        <p class="whatsapp-ajuda">
+          Abra o WhatsApp no celular, vá em <strong>Aparelhos conectados</strong> e escaneie o QR Code.
+        </p>
+
+      </div>
+
+      <div class="whatsapp-card whatsapp-card-full">
+
+        <h3>
+
+          <i class="fa-solid fa-user-check"></i>
+
+          Conta conectada
+
+        </h3>
+
+        <div class="whatsapp-conta-info">
+
+          <p>
+
+            <strong>Nome:</strong>
+
+            <span id="whatsappNome">
+              Nenhuma conta conectada
+            </span>
+
+          </p>
+
+          <p>
+
+            <strong>Número:</strong>
+
+            <span id="whatsappNumero">
+              -
+            </span>
+
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+  <!-- =========================================================
+  CENTRAL DE COBRANÇAS
+  ========================================================= -->
+
+  <section id="centralCobrancas" class="section">
+
+    <!-- Cabeçalho -->
+    <div class="central-cobrancas-header">
+      <div>
+        <h2>
+          <i class="fa-solid fa-bell"></i>
+          Central de Cobranças
+          <span id="centralCobrancasBadge" class="central-badge"></span>
+        </h2>
+        <p>Controle completo de cobranças — boletos, envios e status de todos os responsáveis.</p>
+      </div>
+      <button class="btn-gold" onclick="renderizarCentralCobrancas()">
+        <i class="fa-solid fa-rotate"></i>
+        Atualizar
+      </button>
+    </div>
+
+    <!-- Modo de Cobrança -->
+    <div class="modo-cobranca-card">
+      <div>
+        <h3>Modo de Cobrança</h3>
+        <p>Manual: importa boletos externos. Automático: gera boletos pela integração PagBank.</p>
+      </div>
+      <button id="btnModoCobranca" onclick="alternarModoCobranca()">
+        Modo: Manual
+      </button>
+    </div>
+
+    <!-- Importar Boleto (visível só no modo manual) -->
+    <div id="boxImportacaoManual" class="importar-boleto-box">
+      <div>
+        <h3><i class="fa-solid fa-file-import"></i> Importar Boleto Manual</h3>
+        <p>Envie um PDF. O sistema tentará identificar o responsável automaticamente pelo CPF ou nome.</p>
+      </div>
+      <div class="importar-boleto-actions">
+        <input type="file" id="arquivoBoletoManual" accept=".pdf,image/*">
+        <button onclick="importarBoletoManual()">
+          <i class="fa-solid fa-upload"></i>
+          Importar Boleto
+        </button>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="central-filtros">
+
+      <div class="card">
+        <label>Mês de referência</label>
+        <input type="month" id="centralFiltroMes">
+      </div>
+
+      <div class="card">
+        <label>Mostrar</label>
+        <select id="centralFiltroStatus">
+          <option value="todos">Todos os responsáveis</option>
+          <option value="sem_boleto">Sem boleto</option>
+          <option value="com_boleto">Com boleto</option>
+          <option value="aguardando">Aguardando envio WhatsApp</option>
+          <option value="enviado">WhatsApp já enviado</option>
+        </select>
+      </div>
+
+      <button onclick="renderizarCentralCobrancas()">
+        <i class="fa-solid fa-filter"></i>
+        Filtrar
+      </button>
+
+      <button class="btn-reset-envios" onclick="resetarEnviosCobrancas()">
+        <i class="fa-solid fa-rotate-left"></i>
+        Reset Envios
+      </button>
+
+      <button class="btn-migrar-boletos" onclick="migrarBoletosParaSupabase()" id="btnMigrarBoletos">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        Migrar Boletos para Nuvem
+      </button>
+
+    </div>
+
+    <!-- Resumo -->
+    <div id="centralResumo" class="central-resumo"></div>
+
+    <!-- Input file oculto para importação por responsável -->
+    <input type="file" id="arquivoBoletoResponsavel" accept=".pdf,image/*" style="display:none">
+
+    <!-- Lista de responsáveis -->
+    <div id="listaCentralCobrancas" class="lista-central-cobrancas"></div>
+
+  </section>
+
+  <!-- =========================================================
+  RELATÓRIOS
+  ========================================================= -->
+
+  <section id="relatorios" class="section">
+
+    <div class="form-container">
+
+      <h2>
+
+        <i class="fa-solid fa-file-pdf"></i>
+
+        Relatórios do Instituto
+
+      </h2>
+
+      <div class="relatorio-grid">
+
+        <div class="relatorio-card">
+
+          <i class="fa-solid fa-chart-column"></i>
+
+          <h3>Relatório Financeiro</h3>
+
+          <button onclick="gerarRelatorioFinanceiro()">
+
+            <i class="fa-solid fa-file-pdf"></i>
+
+            Gerar PDF
+
+          </button>
+
+        </div>
+
+        <div class="relatorio-card">
+
+          <i class="fa-solid fa-users"></i>
+
+          <h3>Relatório de Alunos</h3>
+
+          <button onclick="gerarRelatorioAlunos()">
+
+            <i class="fa-solid fa-file-pdf"></i>
+
+            Gerar PDF
+
+          </button>
+
+        </div>
+
+        <div class="relatorio-card">
+
+          <i class="fa-solid fa-receipt"></i>
+
+          <h3>Relatório Mensalidades</h3>
+
+          <button onclick="gerarRelatorioMensalidades()">
+
+            <i class="fa-solid fa-file-pdf"></i>
+
+            Gerar PDF
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</main>
+
+</div>
+<!-- MODAL DADOS BOLETO -->
+
+<div id="modalDadosBoleto" class="modal-dados-boleto">
+
+  <div class="modal-dados-conteudo">
+
+    <div class="modal-dados-topo">
+
+      <h3>Dados para Gerar Boleto</h3>
+
+      <button
+        class="fechar-modal-dados"
+        onclick="fecharModalDadosBoleto()"
+      >
+        ✕
+      </button>
+
+    </div>
+
+    <textarea
+      id="textoDadosBoleto"
+      readonly
+    ></textarea>
+
+    <div class="modal-dados-acoes">
+
+      <button
+        class="btn-copiar-dados"
+        onclick="copiarDadosBoleto()"
+      >
+        Copiar Dados
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
