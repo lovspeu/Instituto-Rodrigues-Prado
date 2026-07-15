@@ -521,3 +521,15 @@ as outras. Na Fase 8 (quando os `onclick` virarem listeners) dá para travar `sc
 **Pendente (documentado, exige backend+frontend+teste):** paginação, filtro/ordenação no servidor,
 cache com invalidação, skeletons, cancelamento de requisições, endpoint de indicadores do Dashboard
 (ver `MIGRACOES_SUPABASE.md` §3).
+
+### FASE 8 — Frontend modular 🟨 (parte 1) — commit `ddd388e`
+- **FE-04 (parcial) ✅ Componente central de notificações**: `frontend/js/notificacoes.js` expõe
+  `window.toast(mensagem, tipo)` — avisos estilizados, não bloqueantes, tema navy+dourado, acessível
+  (role status/alert, `prefers-reduced-motion`, CSS auto-injetado, `textContent` = sem XSS). **42
+  `alert()` → `toast()`** no `app.js`.
+- **Adiado (exige teste de navegador — sem browser aqui é arriscado às cegas):**
+  - `confirm()` (7×) / `prompt()` (2×) → modais assíncronos (muda fluxo de controle).
+  - Split do `app.js` (~3.900 linhas) em `js/pages/*` e `style.css` em `styles/*` — risco de ordem
+    de script/hoisting entre `<script>` separados; melhor com harness de testes (Fase 12).
+  - `onclick` inline → listeners + **travar `script-src-attr` de volta em `'none'`** na CSP.
+  - `innerHTML +=` → `textContent`/sanitização.
