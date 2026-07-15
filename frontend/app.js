@@ -194,7 +194,7 @@ async function alternarModoCensura(){
 
     console.error(error);
 
-    alert(
+    toast(
       'Erro ao alterar modo censura.'
     );
 
@@ -520,7 +520,7 @@ if(formLogin){
 
       console.error('Erro ao fazer login:', error);
 
-      alert('Erro ao conectar com o servidor.');
+      toast('Erro ao conectar com o servidor.');
 
     }
 
@@ -591,17 +591,17 @@ async function salvarNovaSenha(usuario){
     document.getElementById('confirmarNovaSenha').value.trim();
 
   if(!novaSenha || !confirmarNovaSenha){
-    alert('Preencha os dois campos.');
+    toast('Preencha os dois campos.');
     return;
   }
 
   if(novaSenha.length < 6){
-    alert('A senha precisa ter pelo menos 6 caracteres.');
+    toast('A senha precisa ter pelo menos 6 caracteres.');
     return;
   }
 
   if(novaSenha !== confirmarNovaSenha){
-    alert('As senhas não coincidem.');
+    toast('As senhas não coincidem.');
     return;
   }
 
@@ -621,7 +621,7 @@ async function salvarNovaSenha(usuario){
     const dados = await resposta.json().catch(() => ({}));
 
     if(!resposta.ok || !dados.sucesso){
-      alert(dados.erro || 'Erro ao salvar nova senha.');
+      toast(dados.erro || 'Erro ao salvar nova senha.');
       return;
     }
 
@@ -643,7 +643,7 @@ async function salvarNovaSenha(usuario){
 
     console.error('Erro ao salvar senha:', error);
 
-    alert('Erro ao conectar com o servidor.');
+    toast('Erro ao conectar com o servidor.');
 
   }
 
@@ -942,7 +942,7 @@ document.getElementById('clienteEditando')?.value || '';
     }catch(error){
 
       console.error(error);
-      alert(
+      toast(
         idEditando
         ? 'Erro ao editar responsável.'
         : 'Erro ao cadastrar responsável.'
@@ -1113,7 +1113,7 @@ async function removerCliente(id){
   }catch(error){
 
     console.error(error);
-    alert('Erro ao remover responsável.');
+    toast('Erro ao remover responsável.');
 
   }
 
@@ -1200,7 +1200,7 @@ if(formAluno){
     }catch(error){
 
       console.error(error);
-      alert('Erro ao cadastrar aluno.');
+      toast('Erro ao cadastrar aluno.');
 
     }
 
@@ -1324,7 +1324,7 @@ async function removerAluno(id){
   }catch(error){
 
     console.error(error);
-    alert('Erro ao remover aluno.');
+    toast('Erro ao remover aluno.');
 
   }
 
@@ -1396,7 +1396,7 @@ if(formFinanceiro){
     }catch(error){
 
       console.error(error);
-      alert('Erro ao adicionar movimentação.');
+      toast('Erro ao adicionar movimentação.');
 
     }
 
@@ -1605,7 +1605,7 @@ async function alterarStatus(id){
   }catch(error){
 
     console.error(error);
-    alert('Erro ao alterar status.');
+    toast('Erro ao alterar status.');
 
   }
 
@@ -1632,7 +1632,7 @@ async function removerFinanceiro(id){
   }catch(error){
 
     console.error(error);
-    alert('Erro ao remover movimentação.');
+    toast('Erro ao remover movimentação.');
 
   }
 
@@ -1767,7 +1767,7 @@ async function pagarMensalidade(alunoId){
   }catch(error){
 
     console.error(error);
-    alert('Erro ao marcar mensalidade como paga.');
+    toast('Erro ao marcar mensalidade como paga.');
 
   }
 
@@ -1800,7 +1800,7 @@ async function estornarMensalidade(alunoId){
   }catch(error){
 
     console.error(error);
-    alert('Erro ao estornar mensalidade.');
+    toast('Erro ao estornar mensalidade.');
 
   }
 
@@ -1837,7 +1837,7 @@ async function resolverMensalidadeSemPagamento(alunoId){
   }catch(error){
 
     console.error(error);
-    alert('Erro ao resolver mensalidade sem pagamento.');
+    toast('Erro ao resolver mensalidade sem pagamento.');
 
   }
 
@@ -1868,7 +1868,7 @@ async function desfazerResolucaoMensalidade(alunoId){
   }catch(error){
 
     console.error(error);
-    alert('Erro ao desfazer resolução.');
+    toast('Erro ao desfazer resolução.');
 
   }
 
@@ -1928,7 +1928,7 @@ async function removerBoleto(alunoId, referencia){
   }catch(error){
 
     console.error(error);
-    alert('Erro ao remover boleto.');
+    toast('Erro ao remover boleto.');
 
   }
 
@@ -2361,7 +2361,7 @@ function mostrarDadosBoletoResponsavel(nomeResponsavel){
   const cliente = grupo.responsavel;
 
   if(!cliente){
-    alert('Responsável não encontrado.');
+    toast('Responsável não encontrado.');
     return;
   }
 
@@ -2426,7 +2426,7 @@ function abrirBoletoResponsavel(nomeResponsavel){
   const grupo = obterGrupoResponsavel(nomeResponsavel);
 
   if(!grupo.responsavel){
-    alert('Responsável não encontrado.');
+    toast('Responsável não encontrado.');
     return;
   }
 
@@ -2436,7 +2436,7 @@ function abrirBoletoResponsavel(nomeResponsavel){
     );
 
   if(!cobranca || !cobranca.link_boleto){
-    alert('Nenhum boleto encontrado.');
+    toast('Nenhum boleto encontrado.');
     return;
   }
 
@@ -2450,7 +2450,7 @@ async function removerBoletoResponsavel(nomeResponsavel){
   const cliente = grupo.responsavel;
 
   if(!cliente){
-    alert('Responsável não encontrado.');
+    toast('Responsável não encontrado.');
     return;
   }
 
@@ -2462,7 +2462,7 @@ async function removerBoletoResponsavel(nomeResponsavel){
   );
 
   if(cobrancasEncontradas.length === 0){
-    alert('Nenhum boleto encontrado para remover.');
+    toast('Nenhum boleto encontrado para remover.');
     return;
   }
 
@@ -2485,12 +2485,12 @@ async function removerBoletoResponsavel(nomeResponsavel){
     renderizarCentralCobrancas();
     atualizarDashboard();
 
-    alert('Boleto removido com sucesso.');
+    toast('Boleto removido com sucesso.');
 
   }catch(erro){
 
     console.error(erro);
-    alert('Erro ao remover boleto.');
+    toast('Erro ao remover boleto.');
 
   }
 
@@ -3264,7 +3264,7 @@ async function iniciarSistema(){
   }catch(error){
 
     console.error(error);
-    alert('Erro ao carregar dados do servidor.');
+    toast('Erro ao carregar dados do servidor.');
 
   }
 
@@ -3291,7 +3291,7 @@ async function importarBoletoManual(){
   const input = document.getElementById('arquivoBoletoManual');
 
   if(!input || !input.files || input.files.length === 0){
-    alert('Selecione um boleto PDF ou imagem.');
+    toast('Selecione um boleto PDF ou imagem.');
     return;
   }
 
@@ -3312,14 +3312,14 @@ async function importarBoletoManual(){
     const dados = await resposta.json();
 
     if(!resposta.ok){
-      alert(dados.erro || 'Erro ao importar boleto.');
+      toast(dados.erro || 'Erro ao importar boleto.');
       return;
     }
 
     if(dados.sucesso){
       
 
-      alert(
+      toast(
         `Boleto associado com sucesso!\n\n` +
         `Responsável: ${dados.responsavel}\n` +
         `Confiança: ${dados.confianca}\n` +
@@ -3335,14 +3335,14 @@ async function importarBoletoManual(){
       return;
     }
 
-    alert(
+    toast(
       'O sistema importou o boleto, mas não conseguiu identificar o responsável automaticamente.'
     );
 
   }catch(error){
 
     console.error(error);
-    alert('Erro ao importar boleto manual.');
+    toast('Erro ao importar boleto manual.');
 
   }
 
@@ -3465,7 +3465,7 @@ function copiarDadosBoleto(){
     texto.value
   );
 
-  alert(
+  toast(
     'Dados copiados com sucesso!'
   );
 
@@ -3534,13 +3534,13 @@ function copiarMensagemCentralCobranca(id){
   if(!cobranca) return;
 
   const cliente = clientes.find(c => Number(c.id) === Number(cobranca.responsavel_id));
-  if(!cliente){ alert('Responsável não encontrado.'); return; }
+  if(!cliente){ toast('Responsável não encontrado.'); return; }
 
   const alunosGrupo = alunos.filter(a => a.responsavel === cliente.nome);
   const mensagem = montarMensagemCobranca(cobranca, cliente, alunosGrupo);
 
   navigator.clipboard.writeText(mensagem)
-    .then(() => alert('Mensagem copiada!'))
+    .then(() => toast('Mensagem copiada!'))
     .catch(() => prompt('Copie a mensagem:', mensagem));
 
 }
@@ -3551,7 +3551,7 @@ function abrirWhatsappCentralCobranca(id){
   if(!cobranca) return;
 
   const cliente = clientes.find(c => Number(c.id) === Number(cobranca.responsavel_id));
-  if(!cliente){ alert('Responsável não encontrado.'); return; }
+  if(!cliente){ toast('Responsável não encontrado.'); return; }
 
   const alunosGrupo = alunos.filter(a => a.responsavel === cliente.nome);
   const mensagem = montarMensagemCobranca(cobranca, cliente, alunosGrupo);
@@ -3577,7 +3577,7 @@ async function marcarCobrancaEnviada(id, botao){
   }catch(error){
 
     console.error(error);
-    alert('Erro ao marcar como enviado.');
+    toast('Erro ao marcar como enviado.');
     if(botao){ botao.disabled = false; botao.innerHTML = '<i class="fa-solid fa-check"></i> Marcar enviado'; }
 
   }
@@ -3599,7 +3599,7 @@ async function desfazerCobrancaEnviada(id, botao){
 
   }catch(e){
 
-    alert('Erro ao desfazer envio.');
+    toast('Erro ao desfazer envio.');
     if(botao){ botao.disabled = false; botao.innerHTML = '<i class="fa-solid fa-rotate-left"></i> Desfazer envio'; }
 
   }
@@ -3628,7 +3628,7 @@ async function migrarBoletosParaSupabase(){
 
     const primeiroErro = dados.resultados?.find(r => r.status === 'erro');
 
-    alert(
+    toast(
       'Migração concluída!\n\n' +
       '✅ Migrados: ' + dados.migrados + '\n' +
       '❌ Erros: ' + dados.erros + '\n' +
@@ -3639,7 +3639,7 @@ async function migrarBoletosParaSupabase(){
 
   }catch(e){
 
-    alert('Erro na migração: ' + e.message);
+    toast('Erro na migração: ' + e.message);
 
   }finally{
 
@@ -3669,12 +3669,12 @@ async function resetarEnviosCobrancas(){
     });
 
     renderizarCentralCobrancas();
-    alert('Envios resetados com sucesso!');
+    toast('Envios resetados com sucesso!');
 
   }catch(e){
 
     console.error(e);
-    alert('Erro ao resetar envios.');
+    toast('Erro ao resetar envios.');
 
   }
 
