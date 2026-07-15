@@ -533,3 +533,16 @@ cache com invalidação, skeletons, cancelamento de requisições, endpoint de i
     de script/hoisting entre `<script>` separados; melhor com harness de testes (Fase 12).
   - `onclick` inline → listeners + **travar `script-src-attr` de volta em `'none'`** na CSP.
   - `innerHTML +=` → `textContent`/sanitização.
+
+### FASE 10 — Repaginação visual 🟨 (core) — commit `b965322`
+Identidade **derivada do logo real** (o navy+dourado genérico foi rejeitado pelo usuário: "parece
+Subway"). Aprovada via mockup (artifact). **Mantém o layout**, refina os tokens:
+- **Paleta do logo:** navy com hierarquia (`#081327`/`#0d1e40`/`#12274f`/`#1a3363`) + dourado
+  **metálico** (grad brilho→bronze) + branco quente. `:root` com nomes semânticos + aliases
+  (`--bg`,`--gold`,`--text`... herdam a paleta nova → regras existentes não mudam).
+- **Serifa** (Cormorant Garamond) no nome do Instituto e títulos.
+- **Fundo:** 4 radiais pesados + `background-attachment:fixed` (travava o renderizador) → navy limpo.
+- **Unificadas ~32** cores douradas/azuis cravadas (as ~12 variações aleatórias) → variáveis.
+- **Validado:** chaves CSS 480/480; sem erro de JS. Validação visual final = Render.
+- **Falta (se preciso após teste):** polir componentes específicos por tela; documentar o design
+  system completo; a serifa web precisa do Google Fonts (já liberado na CSP).
