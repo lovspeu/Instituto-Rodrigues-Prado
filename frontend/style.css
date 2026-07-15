@@ -3,28 +3,60 @@
    Mantém o visual atual, reduz repetições e centraliza padrões.
 ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 :root{
-  --bg:#020617;
-  --bg-2:#031433;
-  --card:rgba(15,18,28,.72);
+  /* ===== IDENTIDADE — Instituto Rodrigues Prado (derivada do logo real) ===== */
+  /* Navy profundo com hierarquia (cor do logo) */
+  --navy-900:#081327;   /* fundo da app / bordas externas */
+  --navy-800:#0d1e40;   /* menu, cabeçalho, estrutura */
+  --navy-700:#12274f;   /* cards / superfícies */
+  --navy-600:#1a3363;   /* elevado / hover */
+  --navy-glow:#20407a;  /* brilho radial (login) */
+
+  /* Dourado metálico (brilho -> bronze, como o emblema) */
+  --dourado:#d9b45a;
+  --dourado-hi:#f6e6ab;
+  --dourado-mid:#c9a24a;
+  --dourado-deep:#8a6a22;
+  --dourado-grad:linear-gradient(150deg,#f6e6ab 0%,#d9b45a 42%,#b98f34 72%,#8a6a22 100%);
+
+  /* Texto (branco levemente quente do logo) */
+  --texto:#f3eede;
+  --texto-2:#b9c2d6;
+  --texto-3:#8090ab;
+
+  /* Semânticas */
+  --sucesso:#3fbf7a;
+  --alerta:#e6a93c;
+  --erro:#e2604f;
+  --info:var(--blue);
+
+  /* Bordas / sistema */
+  --borda:rgba(255,255,255,.07);
+  --borda-dourada:rgba(217,180,90,.18);
+  --serif:"Cormorant Garamond","Palatino Linotype",Georgia,serif;
+
+  /* ===== ALIASES (compatibilidade com o CSS existente) ===== */
+  --bg:var(--navy-900);
+  --bg-2:var(--navy-800);
+  --card:var(--navy-700);
   --card-2:rgba(255,255,255,.035);
-  --line:rgba(255,255,255,.06);
-  --gold:#d4af37;
-  --gold-2:#f5d76e;
-  --gold-3:#b8860b;
-  --blue:#2563eb;
-  --green:#22c55e;
+  --line:var(--borda);
+  --gold:var(--dourado);
+  --gold-2:var(--dourado-hi);
+  --gold-3:var(--dourado-deep);
+  --blue:var(--info);
+  --green:var(--sucesso);
   --green-2:#25d366;
-  --red:#ef4444;
-  --orange:#f59e0b;
-  --text:#ffffff;
-  --muted:#d1d5db;
-  --dark:#111827;
-  --radius:24px;
-  --shadow:0 10px 35px rgba(0,0,0,.25);
-  --gold-gradient:linear-gradient(135deg,#fff1a8,#f5d76e,#d4af37,#b8860b);
+  --red:var(--erro);
+  --orange:var(--alerta);
+  --text:var(--texto);
+  --muted:var(--texto-2);
+  --dark:#10203f;
+  --radius:16px;
+  --shadow:0 12px 34px rgba(0,0,0,.40);
+  --gold-gradient:var(--dourado-grad);
 }
 
 /* =========================================================
@@ -49,11 +81,8 @@ body{
   font-family:'Inter',sans-serif;
   color:var(--text);
   background:
-    radial-gradient(circle at top left,rgba(245,215,110,.12),transparent 25%),
-    radial-gradient(circle at bottom right,rgba(212,175,55,.10),transparent 28%),
-    radial-gradient(circle at center,rgba(37,99,235,.16),transparent 40%),
-    linear-gradient(135deg,#010817 0%,#020b24 25%,#031433 50%,#020617 100%);
-  background-attachment:fixed;
+    radial-gradient(100% 60% at 50% -8%,var(--navy-800) 0%,var(--navy-900) 62%),
+    var(--navy-900);
   overflow-y:auto;
   position:relative;
 }
@@ -165,8 +194,12 @@ form{
 .logo h1,
 .topbar h2,
 .login-box h1{
-  background:linear-gradient(to right,#fff6cc,#f5d76e,#d4af37);
+  font-family:var(--serif);
+  font-weight:600;
+  letter-spacing:.02em;
+  background:linear-gradient(to right,#f6e6ab,#d9b45a,#8a6a22);
   -webkit-background-clip:text;
+  background-clip:text;
   -webkit-text-fill-color:transparent;
 }
 
@@ -507,7 +540,7 @@ form{
 }
 
 .menu-item.active{
-  background:linear-gradient(135deg,#f5d76e,#d4af37);
+  background:linear-gradient(135deg,var(--gold-2),var(--gold));
   color:var(--dark);
   font-weight:700;
   box-shadow:0 10px 25px rgba(212,175,55,.2);
@@ -613,7 +646,7 @@ form{
 }
 
 .mes-btn.active{
-  background:linear-gradient(135deg,#f5d76e,#d4af37);
+  background:linear-gradient(135deg,var(--gold-2),var(--gold));
   color:var(--dark);
   box-shadow:0 10px 25px rgba(212,175,55,.18);
 }
@@ -681,7 +714,7 @@ form{
   width:65px;
   height:65px;
   border-radius:20px;
-  background:linear-gradient(135deg,#f5d76e,#d4af37);
+  background:linear-gradient(135deg,var(--gold-2),var(--gold));
   color:var(--dark);
   display:flex;
   align-items:center;
@@ -692,7 +725,7 @@ form{
 
 .dashboard-icon.green{background:linear-gradient(135deg,#86efac,#22c55e)}
 .dashboard-icon.red{background:linear-gradient(135deg,#fca5a5,#ef4444)}
-.dashboard-icon.blue{background:linear-gradient(135deg,#93c5fd,#3b82f6)}
+.dashboard-icon.blue{background:linear-gradient(135deg,#93c5fd,var(--blue))}
 
 .dashboard-card h3,
 .cliente-card h3,
@@ -753,6 +786,8 @@ form{
 .dashboard-box-header h2,
 .form-container h2,
 .grafico-header h3{
+  font-family:var(--serif);
+  font-weight:600;
   color:var(--gold-2);
   display:flex;
   align-items:center;
@@ -1427,7 +1462,7 @@ form{
   position:absolute;
   inset:0 0 auto 0;
   height:4px;
-  background:linear-gradient(90deg,#f5d76e,#d4af37,#9f740e);
+  background:linear-gradient(90deg,var(--gold-2),var(--gold),var(--gold-3));
 }
 
 .cobranca-card::after{
@@ -2063,7 +2098,7 @@ FINANCEIRO PREMIUM
   margin-top:6px;
   font-size:15px;
   font-weight:800;
-  color:#d4af37;
+  color:var(--gold);
   letter-spacing:.3px;
 }
 
@@ -2089,7 +2124,7 @@ FINANCEIRO PREMIUM
 }
 
 .card-definir-senha h2{
-  color:#d4af37;
+  color:var(--gold);
   margin-bottom:10px;
 }
 
@@ -2118,7 +2153,7 @@ FINANCEIRO PREMIUM
   border-radius:15px;
   cursor:pointer;
   font-weight:900;
-  background:linear-gradient(135deg,#d4af37,#f5d76e);
+  background:linear-gradient(135deg,var(--gold),var(--gold-2));
   color:#111827;
 }
 .input-group select{
@@ -2163,7 +2198,7 @@ FINANCEIRO PREMIUM
   padding:12px 16px;
   border-radius:14px;
   background:rgba(212,175,55,.12);
-  color:#d4af37;
+  color:var(--gold);
   font-weight:700;
   white-space:nowrap;
 }
@@ -2272,7 +2307,7 @@ MODAL DADOS BOLETO
 }
 
 .modal-dados-topo h3{
-  color:#d4af37;
+  color:var(--gold);
   margin:0;
 }
 
@@ -2307,8 +2342,8 @@ MODAL DADOS BOLETO
 .btn-copiar-dados{
   background:linear-gradient(
     135deg,
-    #d4af37,
-    #f4d76a
+    var(--gold),
+    var(--gold-2)
   );
   color:#111;
   border:none;
@@ -2341,7 +2376,7 @@ MODAL DADOS BOLETO
 }
 
 .toggle-senha:hover{
-  color:#d4af37;
+  color:var(--gold);
 }
 .btn-censura{
   width: 44px;
@@ -2378,8 +2413,8 @@ MODAL DADOS BOLETO
 .btn-censura.ativo{
   background: linear-gradient(
     135deg,
-    #d4af37,
-    #f7d774
+    var(--gold),
+    var(--gold-2)
   );
   color: #031022;
   box-shadow:
@@ -2579,7 +2614,7 @@ CENTRAL DE COBRANÇAS
   position:absolute;
   inset:0 0 auto 0;
   height:4px;
-  background:linear-gradient(90deg,#f5d76e,#d4af37,#9f740e);
+  background:linear-gradient(90deg,var(--gold-2),var(--gold),var(--gold-3));
 }
 
 .central-card:hover{
@@ -2927,7 +2962,7 @@ CENTRAL DE COBRANÇAS
 }
 .central-filtros button{
   padding:9px 18px;
-  background:var(--gold-gradient,linear-gradient(135deg,#c9a84c,#f0d060));
+  background:var(--gold-gradient,linear-gradient(135deg,var(--gold),var(--gold)));
   color:#000;
   border:none;
   border-radius:8px;
@@ -3057,7 +3092,7 @@ CENTRAL DE COBRANÇAS
 }
 .cc-badge-aguardando{
   background:rgba(234,179,8,.12);
-  color:#facc15;
+  color:var(--gold);
   border:1px solid rgba(234,179,8,.25);
 }
 .cc-badge-enviado{
@@ -3177,7 +3212,7 @@ CENTRAL DE COBRANÇAS
 .cc-acoes .btn-remover-boleto:hover{ background:rgba(239,68,68,.2); }
 .cc-acoes .btn-gerar-boleto{
   grid-column:1/-1;
-  background:var(--gold-gradient,linear-gradient(135deg,#c9a84c,#f0d060));
+  background:var(--gold-gradient,linear-gradient(135deg,var(--gold),var(--gold)));
   color:#000;
   border:none;
   font-weight:700;
@@ -3201,7 +3236,7 @@ CENTRAL DE COBRANÇAS
 }
 
 .btn-migrar-boletos{
-  background:linear-gradient(135deg,#3b82f6,#2563eb) !important;
+  background:linear-gradient(135deg,var(--blue),var(--blue)) !important;
   color:#fff !important;
   border:none !important;
   display:flex;
